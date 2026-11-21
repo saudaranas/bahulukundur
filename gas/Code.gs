@@ -8,6 +8,11 @@
  * 3. Deploy > Manage deployments > pensel (Edit) > Version: New version > Deploy
  *    (URL kekal sama, app tak perlu diubah)
  *
+ * TELEGRAM (notifikasi admin): lihat panduan di bahagian TELEGRAM di bawah.
+ *  1. Buat bot di @BotFather, salin token ke sheet Tetapan baris tg_token
+ *  2. Admin tekan Start pada bot
+ *  3. Run fungsi sambungTelegram  (pilihan: Run pasangRingkasanHarian)
+ *
  * PIN:
  *  - pin_admin : semua akses (edit, padam, tetapan, laporan). Min 6 digit.
  *  - pin_staff : hantar stok, kutip, cetak sahaja. Min 4 digit.
@@ -45,6 +50,9 @@ function setup() {
   if (!s.note) setSetting_('note', 'Terima kasih. Bayaran ikut jualan sebenar.');
   if (!s.pin_admin) setSetting_('pin_admin', s.pin || '123456');
   if (!s.pin_staff) setSetting_('pin_staff', '1234');
+  if (s.tg_token === undefined) setSetting_('tg_token', '');
+  if (s.tg_admin === undefined) setSetting_('tg_admin', 'abufayyadh');
+  if (s.tg_chat === undefined) setSetting_('tg_chat', '');
   const p = ss.getSheetByName('Produk');
   if (p.getLastRow() < 2) {
     p.getRange(2, 1, 2, 4).setValues([
@@ -76,6 +84,7 @@ function handle_(p) {
     if (p.action === 'all') return out_({ ok: true, role: a.role, data: readAll_(), time: Date.now() });
     if (p.action === 'sync') {
       const r = applyOps_(p.ops || [], a.role);
+      r.notes.forEach(function (m) { tgSend_(m); });
       return out_({ ok: true, role: a.role, applied: r.applied, rejected: r.rejected, data: readAll_(), time: Date.now() });
     }
     return out_({ ok: false, error: 'Tindakan tidak dikenali' });
@@ -161,6 +170,8 @@ function applyOps_(ops, role) {
   try {
     let applied = 0;
     const rejected = [];
+    const notes = [];
+    const who = admin_(role);
     const admin = role === 'admin';
     const products = readProducts_();
     const shopName = function (id) {
@@ -207,6 +218,7 @@ function applyOps_(ops, role) {
           if (!admin) { reject('padam resit', d.no); return; }
           if (!old) return;
           writeCons_(d);
+          notes.push('🗑 <b>RESIT DIPADAM</b>\nNo: ' + esc_(old.no) + '\nKedai: ' + esc_(shopName(old.shopId)) + '\nOleh: ' + who + '\nMasa: ' + time_(Date.now()));
           log_(role, 'Resit dipadam', old.no, shopName(old.shopId) + ' · ' + (old.status === 'selesai' ? 'dah bayar ' + rm_(old.settle && old.settle.total) : 'belum kutip ' + itemsTxt_(old.items)));
           applied++;
           return;
@@ -229,6 +241,8 @@ function applyOps_(ops, role) {
           writeCons_(d);
           log_(role, 'Hantar stok', d.no, shopName(d.shopId) + ': ' + itemsTxt_(d.items) + ' · nilai ' + rm_(valueOf_(d.items)));
           if (d.status === 'selesai') log_(role, 'Kutip', d.no, soldTxt_(d) + ' · bayar ' + rm_(d.settle.total) + ' · tarikh ' + d.settle.date);
+          notes.push(msgHantar_(d, shopName(d.shopId), who));
+          if (d.status === 'selesai') notes.push({ kutip: d, shop: shopName(d.shopId), who: who, edit: false });
           applied++;
           return;
         }
@@ -246,6 +260,7 @@ function applyOps_(ops, role) {
         if (!sameItems) log_(role, 'Edit hantaran', d.no, 'Sebelum: ' + itemsTxt_(old.items) + ' | Selepas: ' + itemsTxt_(d.items));
         if (old.status === 'aktif' && d.status === 'selesai') {
           const was = old.settle ? ' (sebelum ini ' + rm_(old.settle.total) + ')' : '';
+          notes.push({ kutip: d, shop: shopName(d.shopId), who: who, edit: !!old.settle, before: old.settle ? old.settle.total : null });
           log_(role, old.settle ? 'Edit kutipan' : 'Kutip', d.no, soldTxt_(d) + ' · bayar ' + rm_(d.settle.total) + was + ' · tarikh ' + d.settle.date);
         } else if (old.status === 'selesai' && d.status === 'aktif') {
           log_(role, 'Buka semula kutipan', d.no, 'Untuk edit · sebelum ini ' + rm_(old.settle && old.settle.total));
@@ -254,7 +269,11 @@ function applyOps_(ops, role) {
         }
       }
     });
-    return { applied: applied, rejected: rejected };
+    // mesej kutipan dibina selepas semua data ditulis supaya "jumlah hari ini" tepat
+    return {
+      applied: applied, rejected: rejected,
+      notes: notes.map(function (n) { return typeof n === 'string' ? n : msgKutip_(n); })
+    };
   } finally {
     lock.releaseLock();
   }
@@ -341,4 +360,110 @@ function upsert_(name, id, row, updatedAt, updCol) {
   }
   sh.getRange(sh.getLastRow() + 1, 1, 1, width).setNumberFormat('@').setValues([row.map(String)]);
   return true;
+}
+
+/* ================== TELEGRAM ==================
+ * PANDUAN:
+ * 1. Di Telegram, buka @BotFather > /newbot > beri nama (contoh: Bahulu Kundur Notifikasi)
+ *    dan username bot (mesti berakhir "bot", contoh: bahulukundur_notif_bot). Salin TOKEN.
+ * 2. Tampal token dalam sheet Tetapan, baris "tg_token" (lajur value).
+ * 3. Admin (username dalam baris "tg_admin") buka bot tadi dan tekan START.
+ * 4. Di Apps Script, pilih fungsi "sambungTelegram" > Run. Admin akan dapat mesej ujian.
+ * 5. (Pilihan) Run "pasangRingkasanHarian" untuk ringkasan setiap hari jam 9 malam.
+ * 6. Deploy > Manage deployments > Edit > New version > Deploy.
+ */
+function sambungTelegram() {
+  const s = readSettings_();
+  const token = String(s.tg_token || '').trim();
+  if (!token) throw new Error('Isi tg_token dalam sheet Tetapan dulu (token dari @BotFather).');
+  const want = String(s.tg_admin || '').replace('@', '').toLowerCase();
+  const res = JSON.parse(UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/getUpdates', { muteHttpExceptions: true }).getContentText());
+  if (!res.ok) throw new Error('Token tidak sah: ' + (res.description || ''));
+  let chat = null;
+  (res.result || []).forEach(function (u) {
+    const m = u.message || u.my_chat_member || u.edited_message;
+    if (!m || !m.chat) return;
+    const un = String((m.from && m.from.username) || m.chat.username || '').toLowerCase();
+    if (!want || un === want || m.chat.type !== 'private') chat = m.chat;
+  });
+  if (!chat) throw new Error('Tak jumpa chat @' + want + '. Pastikan admin dah buka bot dan tekan START (atau hantar apa-apa mesej), kemudian Run semula.');
+  setSetting_('tg_chat', String(chat.id));
+  tgSend_('✅ <b>Notifikasi Bahulu Kundur aktif</b>\nAnda akan terima makluman setiap kali staff hantar stok atau kutip bayaran di kedai.');
+  return 'Berjaya. Chat ID: ' + chat.id + ' (' + (chat.username || chat.title || '') + ')';
+}
+
+function tgSend_(text) {
+  try {
+    const s = readSettings_();
+    if (!s.tg_token || !s.tg_chat) return;
+    UrlFetchApp.fetch('https://api.telegram.org/bot' + s.tg_token + '/sendMessage', {
+      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({ chat_id: s.tg_chat, text: text, parse_mode: 'HTML', disable_web_page_preview: true })
+    });
+  } catch (e) { /* notifikasi gagal tak boleh ganggu simpanan data */ }
+}
+
+function esc_(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function admin_(role) { return role === 'admin' ? 'Admin' : role === 'staff' ? 'Staff' : '-'; }
+function time_(ms) { return Utilities.formatDate(new Date(+ms || Date.now()), 'Asia/Kuala_Lumpur', 'dd/MM/yyyy, h:mm a'); }
+function lateNote_(ms) { const m = Math.round((Date.now() - (+ms || Date.now())) / 60000); return m > 10 ? '\n<i>(direkod offline, sampai ke sistem ' + m + ' minit kemudian)</i>' : ''; }
+function dmy_(ymd) { return String(ymd || '').split('-').reverse().join('/'); }
+
+function msgHantar_(d, shop, who) {
+  const u = (d.items || []).reduce(function (a, i) { return a + (+i.qty || 0); }, 0);
+  return '🚚 <b>HANTAR STOK</b>\n' +
+    '🏪 <b>' + esc_(shop) + '</b>\n' +
+    '🕒 ' + time_(d.updatedAt) + '\n' +
+    '👤 ' + who + ' · No ' + esc_(d.no) + '\n\n' +
+    (d.items || []).map(function (i) { return '• ' + esc_(i.name) + ' × <b>' + i.qty + '</b> (' + rm_(i.qty * i.price) + ')'; }).join('\n') +
+    '\n\nJumlah: <b>' + u + ' balang</b> · Nilai ' + rm_(valueOf_(d.items)) + lateNote_(d.updatedAt);
+}
+
+function msgKutip_(n) {
+  const d = n.kutip;
+  let jual = 0, baki = 0;
+  const lines = (d.items || []).map(function (i) {
+    const b = +(d.settle.baki || {})[i.pid] || 0, j = (+i.qty || 0) - b;
+    jual += j; baki += b;
+    return '• ' + esc_(i.name) + ': terjual <b>' + j + '</b>/' + i.qty + ', baki ' + b + ' → ' + rm_(j * priceOf_(d, i));
+  });
+  const td = todaySummary_(d.settle.date);
+  return (n.edit ? '✏️ <b>KUTIPAN DIUBAH</b>' : '💰 <b>KUTIPAN</b>') + '\n' +
+    '🏪 <b>' + esc_(n.shop) + '</b>\n' +
+    '🕒 ' + time_(d.updatedAt) + (d.settle.date !== Utilities.formatDate(new Date(+d.updatedAt || Date.now()), 'Asia/Kuala_Lumpur', 'yyyy-MM-dd') ? ' (tarikh kutip ' + dmy_(d.settle.date) + ')' : '') + '\n' +
+    '👤 ' + n.who + ' · No ' + esc_(d.no) + ' · hantar ' + dmy_(d.date) + '\n\n' +
+    lines.join('\n') + '\n\n' +
+    'Terjual <b>' + jual + '</b> balang · Baki di kedai <b>' + baki + '</b> balang\n' +
+    '💵 Kutipan: <b>' + rm_(d.settle.total) + '</b>' + (n.edit && n.before != null ? ' (sebelum ini ' + rm_(n.before) + ')' : '') + '\n' +
+    '📊 Jumlah kutipan ' + dmy_(d.settle.date) + ': <b>' + rm_(td.total) + '</b> (' + td.n + ' kedai)' + lateNote_(d.updatedAt);
+}
+
+function todaySummary_(ymd) {
+  const list = rows_('Resit').filter(function (r) { return String(r.deleted) !== 'true' && String(r.status) === 'selesai'; })
+    .map(toCons_).filter(function (c) { return c.settle && c.settle.date === ymd; });
+  return { n: list.length, total: list.reduce(function (a, c) { return a + (+c.settle.total || 0); }, 0), list: list };
+}
+
+/* Ringkasan harian (pilihan) */
+function ringkasanHarian() {
+  const ymd = Utilities.formatDate(new Date(), 'Asia/Kuala_Lumpur', 'yyyy-MM-dd');
+  const all = rows_('Resit').filter(function (r) { return String(r.deleted) !== 'true'; }).map(toCons_);
+  const shops = {}; rows_('Kedai').forEach(function (k) { shops[String(k.id)] = String(k.name); });
+  const hantar = all.filter(function (c) { return c.date === ymd; });
+  const kutip = all.filter(function (c) { return c.status === 'selesai' && c.settle && c.settle.date === ymd; });
+  const aktif = all.filter(function (c) { return c.status === 'aktif'; });
+  const tot = kutip.reduce(function (a, c) { return a + (+c.settle.total || 0); }, 0);
+  const balHantar = hantar.reduce(function (a, c) { return a + c.items.reduce(function (s, i) { return s + (+i.qty || 0); }, 0); }, 0);
+  const stok = aktif.reduce(function (a, c) { return a + valueOf_(c.items); }, 0);
+  tgSend_('📋 <b>RINGKASAN HARI INI</b> (' + dmy_(ymd) + ')\n\n' +
+    '🚚 Hantar: <b>' + hantar.length + '</b> kedai, ' + balHantar + ' balang\n' +
+    '💰 Kutip: <b>' + kutip.length + '</b> kedai, <b>' + rm_(tot) + '</b>\n' +
+    (kutip.length ? kutip.map(function (c) { return '   • ' + esc_(shops[c.shopId] || '?') + ': ' + rm_(c.settle.total); }).join('\n') + '\n' : '') +
+    '\n📦 Stok masih di kedai: ' + rm_(stok) + ' (' + aktif.length + ' resit belum kutip)');
+}
+
+function pasangRingkasanHarian() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'ringkasanHarian') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('ringkasanHarian').timeBased().everyDays(1).atHour(21).inTimezone('Asia/Kuala_Lumpur').create();
+  return 'Ringkasan harian dipasang: setiap hari jam 9 malam';
 }
