@@ -135,6 +135,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .kv small{display:block;font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .kv b{font-size:15px}
 .kv .sold b{color:var(--ok)}
+.inq{flex:none;text-align:center}.inq small{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--brand);margin-bottom:3px}
 
 /* Settings */
 .srow{display:flex;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -340,39 +341,55 @@ function vList(){
 /* ---------- DETAIL / KEMASKINI BAKI ---------- */
 function vDetail(){
   const c=D.cons.find(x=>x.id===openId);if(!c){openId=null;return vList()}
-  const editing=c.status==='aktif';
+  const editing=c.status==='aktif',mode=D.inMode||'jual',J=mode==='jual';
   const baki=c.settle?c.settle.baki:{};
-  const rows=c.items.map(i=>{const b=baki[i.pid]??'';const j=i.qty-(+b||0);
+  const rows=c.items.map(i=>{const hasB=baki[i.pid]!==undefined,b=+baki[i.pid]||0,j=i.qty-b;
+    const val=hasB?(J?j:b):'';
     return `<div class="drow"><div class="top"><b>${esc(i.name)}</b><span>${rm(i.price)} / balang</span></div>
-    <div class="bot"><div class="kv"><div><small>Hantar</small><b>${i.qty}</b></div><div class="sold"><small>Jual</small><b id="j_${i.pid}">${j}</b></div><div><small>RM</small><b id="s_${i.pid}">${(j*i.price).toFixed(2)}</b></div></div>
-    ${editing?`<div class="stepper" title="Baki"><button aria-label="Kurang baki" onclick="bakiStep('${i.pid}',-1,${i.qty})">−</button>
-      <input type="number" inputmode="numeric" min="0" max="${i.qty}" value="${b}" placeholder="0" data-pid="${i.pid}" oninput="calc()" aria-label="Baki ${esc(i.name)}">
-      <button aria-label="Tambah baki" onclick="bakiStep('${i.pid}',1,${i.qty})">+</button></div>`:`<div class="kv" style="flex:none;grid-template-columns:1fr"><div><small>Baki</small><b>${b||0}</b></div></div>`}
+    <div class="bot"><div class="kv"><div><small>Hantar</small><b>${i.qty}</b></div>
+      ${editing?`<div><small>${J?'Baki':'Terjual'}</small><b id="o_${i.pid}">${J?b:j}</b></div>`:`<div class="sold"><small>Terjual</small><b>${j}</b></div>`}
+      <div><small>RM</small><b id="s_${i.pid}">${(j*i.price).toFixed(2)}</b></div></div>
+    ${editing?`<div class="inq"><small>${J?'Terjual':'Baki'}</small><div class="stepper"><button aria-label="Kurang" onclick="bakiStep('${i.pid}',-1,${i.qty})">−</button>
+      <input type="number" inputmode="numeric" min="0" max="${i.qty}" value="${val}" placeholder="0" data-pid="${i.pid}" oninput="calc()" aria-label="${J?'Terjual':'Baki'} ${esc(i.name)}">
+      <button aria-label="Tambah" onclick="bakiStep('${i.pid}',1,${i.qty})">+</button></div></div>`:`<div class="kv" style="flex:none;grid-template-columns:1fr"><div><small>Baki</small><b>${b}</b></div></div>`}
     </div></div>`}).join('');
   $('#app').innerHTML=`<div class="pt"><button class="back" aria-label="Kembali" onclick="openId=null;render()">${IC.back}</button><h2 style="font-size:20px">${esc(shopName(c.shopId))}</h2></div>
-  <div class="meta"><span>${c.no}</span><span>Hantar ${fmtD(c.date)}</span>${c.settle?`<span>Kutip ${fmtD(c.settle.date)}</span>`:''}<span class="pill ${c.status}" style="margin:0">${editing?'Belum kutip':'Dah bayar'}</span></div>
-  ${editing?`<div class="sec" style="margin-top:4px">Masukkan baki balang di kedai</div>`:`<div class="sec" style="margin-top:4px">Ringkasan jualan</div>`}
+  <div class="meta"><span>${c.no}</span><span>Hantar ${fmtD(c.date)}</span>${c.settle&&!editing?`<span>Kutip ${fmtD(c.settle.date)}</span>`:''}<span class="pill ${c.status}" style="margin:0">${editing?'Belum kutip':'Dah bayar'}</span></div>
+  ${editing?`<div class="sec" style="margin-top:4px">Isi ikut</div>
+    <div class="seg" style="margin-top:0"><button class="${J?'on':''}" onclick="setMode('jual')">Jumlah terjual</button><button class="${J?'':'on'}" onclick="setMode('baki')">Baki di kedai</button></div>`
+  :`<div class="sec" style="margin-top:4px">Ringkasan jualan</div>`}
   <div class="card flush">${rows}</div>
-  ${editing?`<div class="grid2"><button class="btn ghost" onclick="printHantar(D.cons.find(x=>x.id==='${c.id}'))">${IC.receiptSm} Lihat resit</button>
+  ${editing?`<div class="grid2"><button class="btn ghost" onclick="printHantar(D.cons.find(x=>x.id==='${c.id}'))">${IC.receiptSm} Resit hantaran</button>
     <button class="btn ghost danger" onclick="padam('${c.id}')">${IC.trash} Padam</button></div>`
   :`<div class="grid2"><button class="btn ghost" onclick="printBayar(D.cons.find(x=>x.id==='${c.id}'))">${IC.receiptSm} Lihat resit</button>
-    <button class="btn ghost" onclick="editSemula('${c.id}')">Edit baki</button></div>`}`;
+    <button class="btn ghost" onclick="editSemula('${c.id}')">Edit jualan</button></div>`}`;
   const total=c.settle?c.settle.total:c.items.reduce((a,i)=>a+i.qty*i.price,0);
   setDock(editing?`<div class="tot"><small>Kedai perlu bayar</small><b id="tot">${rm(total)}</b></div><button class="btn primary" onclick="kutip()">${IC.print} Kutip &amp; cetak</button>`
     :`<div class="tot"><small>Dibayar</small><b id="tot">${rm(total)}</b></div><button class="btn primary" onclick="hantarLagi('${c.id}')">${IC.plus} Hantar stok baru</button>`);
   if(editing)calc();
 }
+/* Tukar cara isi: kekalkan nombor yang dah ditaip dengan menukar terjual <-> baki */
+async function setMode(m){
+  const c=D.cons.find(x=>x.id===openId),old=D.inMode||'jual';if(m===old)return;
+  const vals={};c.items.forEach(i=>{const el=document.querySelector(`input[data-pid="${i.pid}"]`);if(el&&el.value!=='')vals[i.pid]=i.qty-Math.min(i.qty,+el.value||0)});
+  D.inMode=m;await save();vDetail();
+  Object.keys(vals).forEach(pid=>{const el=document.querySelector(`input[data-pid="${pid}"]`);if(el)el.value=vals[pid]});calc();
+}
 function bakiStep(pid,d,max){const el=document.querySelector(`input[data-pid="${pid}"]`);el.value=Math.min(max,Math.max(0,(+el.value||0)+d));calc()}
+/* Baki untuk satu item, ikut cara isi semasa */
+function readBaki(i){const el=document.querySelector(`input[data-pid="${i.pid}"]`);const v=Math.max(0,+el.value||0);
+  return (D.inMode||'jual')==='jual'?i.qty-Math.min(i.qty,v):Math.min(i.qty,v)}
 function calc(){
-  const c=D.cons.find(x=>x.id===openId);let t=0;
-  c.items.forEach(i=>{const el=document.querySelector(`input[data-pid="${i.pid}"]`);let b=Math.min(i.qty,Math.max(0,+el.value||0));
-    const j=i.qty-b;t+=j*i.price;$('#j_'+i.pid).textContent=j;$('#s_'+i.pid).textContent=(j*i.price).toFixed(2)});
+  const c=D.cons.find(x=>x.id===openId),J=(D.inMode||'jual')==='jual';let t=0;
+  c.items.forEach(i=>{const b=readBaki(i),j=i.qty-b;t+=j*i.price;
+    $('#o_'+i.pid).textContent=J?b:j;$('#s_'+i.pid).textContent=(j*i.price).toFixed(2)});
   $('#tot').textContent=rm(t);
 }
 async function kutip(){
   const c=D.cons.find(x=>x.id===openId);const baki={};let t=0;
   for(const i of c.items){const v=+document.querySelector(`input[data-pid="${i.pid}"]`).value||0;
-    if(v>i.qty)return toast('Baki '+i.name+' lebih dari stok dihantar');baki[i.pid]=v;t+=(i.qty-v)*i.price}
+    if(v>i.qty)return toast((D.inMode||'jual')==='jual'?'Terjual '+i.name+' lebih dari stok dihantar':'Baki '+i.name+' lebih dari stok dihantar');
+    baki[i.pid]=readBaki(i);t+=(i.qty-baki[i.pid])*i.price}
   c.settle={date:today(),baki,total:t};c.status='selesai';await save();printBayar(c);render();toast('Bayaran '+rm(t)+' direkod');
 }
 async function editSemula(id){const c=D.cons.find(x=>x.id===id);c.status='aktif';await save();render()}
