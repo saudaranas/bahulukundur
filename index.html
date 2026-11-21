@@ -234,7 +234,7 @@ nav svg{width:22px;height:22px}
   <button data-tab="hantar"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v10H3z"/><path d="M14 10h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></span>Hantar</button>
   <button data-tab="resit"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>Resit</button>
   <button data-tab="laporan"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Laporan</button>
-  <button data-tab="tetapan"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>Tetapan</button>
+  <button data-tab="tetapan" id="navSet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>Tetapan</button>
 </div></nav>
 <div class="sheet" id="rmodal" onclick="if(event.target===this)tutupResit()"><div class="box" role="dialog" aria-modal="true" aria-labelledby="rTitle">
   <div class="grab"></div>
@@ -248,7 +248,7 @@ nav svg{width:22px;height:22px}
 </div></div>
 <div class="login" id="login"><div class="lbox">
   <div class="logo" style="width:64px;height:64px;border-radius:18px;margin:0 auto 14px"><svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10c4 0 5 4 8 4s7-1 9 1 0 6 1 9 5 4 5 8-4 5-4 8 2 6 0 9-6 0-9 1-4 5-8 5-5-4-8-4-7 1-9-1 0-6-1-9-5-4-5-8 4-5 4-8-2-6 0-9 6 0 9-1 4-5 8-5z" fill="#E8A93E"/><circle cx="32" cy="32" r="7" fill="#7A3F14" opacity=".45"/></svg></div>
-  <h2>Bahulu Kundur</h2><p class="muted" style="margin:2px 0 22px">Masukkan PIN untuk buka app</p>
+  <h2>Bahulu Kundur</h2><p class="muted" style="margin:2px 0 22px">Masukkan PIN Staff atau Admin</p>
   <input class="input pin" id="lpin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="• • • •" maxlength="8" onkeyup="if(event.key==='Enter')login()" aria-label="PIN">
   <p id="lmsg" class="lmsg" role="alert"></p>
   <button class="btn primary" id="lbtn" onclick="login()">Masuk</button>
@@ -282,6 +282,11 @@ const GAS_URL='https://script.google.com/macros/s/AKfycbx9FyUZJwJe9EBEACR5RoNtau
 const cloudOn=()=>/^https:\/\/script\.google\.com\//.test(GAS_URL);
 const PINKEY='bahulu-kundur-pin';
 let syncing=false,syncAgain=false,lastSync=0,syncErr='';
+const ROLEKEY='bahulu-kundur-role',DEVKEY='bahulu-kundur-dev';
+function role(){if(!cloudOn())return 'admin';try{return localStorage.getItem(ROLEKEY)||'staff'}catch(e){return 'staff'}}
+function setRole(r){try{r?localStorage.setItem(ROLEKEY,r):localStorage.removeItem(ROLEKEY)}catch(e){}}
+const isAdmin=()=>role()==='admin';
+function devId(){try{let d=localStorage.getItem(DEVKEY);if(!d){d='d'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem(DEVKEY,d)}return d}catch(e){return 'tiada'}}
 function getPin(){try{return localStorage.getItem(PINKEY)||''}catch(e){return ''}}
 function setPin(v){try{v?localStorage.setItem(PINKEY,v):localStorage.removeItem(PINKEY)}catch(e){}}
 async function load(){
@@ -309,6 +314,7 @@ async function api(body){
   return r.json();
 }
 function busyEditing(){const a=document.activeElement;
+  if(editQtyId)return true;
   if(a&&(a.tagName==='INPUT'||a.tagName==='SELECT'))return true;
   if(tab==='tetapan')return true;
   if(tab==='resit'&&openId){const c=D.cons.find(x=>x.id===openId);if(c&&c.status==='aktif')return true}
@@ -327,12 +333,15 @@ async function sync(){
   syncing=true;syncErr='';setCloud();
   try{
     const ops=(D.outbox||[]).slice();
-    const res=await api({action:'sync',pin:getPin(),ops:ops.map(o=>({t:o.t,data:o.data}))});
+    const res=await api({action:'sync',pin:getPin(),dev:devId(),ops:ops.map(o=>({t:o.t,data:o.data}))});
     if(!res.ok){
-      if(res.code==='PIN'){setPin('');syncErr='pin';showLogin('PIN telah ditukar. Sila masuk semula.')}
+      if(res.code==='PIN'){setPin('');setRole('');syncErr='pin';showLogin('PIN telah ditukar. Sila masuk semula.')}
+      else if(res.code==='LOCK'){syncErr='Terlalu banyak cubaan PIN salah'}
       else syncErr=res.error||'Ralat server';
     }else{
       D.outbox=(D.outbox||[]).filter(o=>!ops.includes(o)); // buang yang dah dihantar
+      if(res.role&&res.role!==role()){setRole(res.role)}
+      if(res.rejected&&res.rejected.length)toast('Sebahagian perubahan ditolak: perlukan Admin');
       const keepMode=D.inMode,keepOut=D.outbox;
       D.supplier=res.data.supplier;D.products=res.data.products.length?res.data.products:D.products;
       D.shops=res.data.shops;D.cons=res.data.cons;D.inMode=keepMode;D.outbox=keepOut;
@@ -374,20 +383,20 @@ async function login(){
   if(pin.length<4)return($('#lmsg').textContent='PIN sekurang-kurangnya 4 digit');
   btn.disabled=true;btn.textContent='Menyemak…';$('#lmsg').textContent='';
   try{
-    const res=await api({action:'all',pin});
+    const res=await api({action:'login',pin,dev:devId()});
     if(!res.ok){$('#lmsg').textContent=res.code==='PIN'?'PIN salah. Cuba lagi.':(res.error||'Ralat server');}
     else{
-      setPin(pin);
+      setPin(pin);setRole(res.role);
       // bawa data lama dalam telefon ni ke cloud (sekali sahaja)
       const ids=new Set(res.data.cons.map(c=>c.id)),sids=new Set(res.data.shops.map(x=>x.id));
       D.shops.filter(x=>!sids.has(x.id)).forEach(x=>queue('shop',Object.assign({updatedAt:1},x)));
       D.cons.filter(c=>!ids.has(c.id)).forEach(c=>queue('cons',Object.assign({updatedAt:1},c)));
-      $('#login').classList.remove('open');toast('Berjaya masuk');await save();sync();
+      $('#login').classList.remove('open');toast(res.role==='admin'?'Masuk sebagai Admin':'Masuk sebagai Staff');tab='hantar';openId=null;render();await save();sync();
     }
   }catch(e){$('#lmsg').textContent='Tiada internet. Sambung internet untuk log masuk kali pertama.'}
   btn.disabled=false;btn.textContent='Masuk';
 }
-function logout(){if(!confirm('Log keluar dari telefon ini?'))return;setPin('');showLogin()}
+function logout(){if(!confirm('Log keluar dari telefon ini?'))return;setPin('');setRole('');showLogin()}
 
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;openId=null;render();window.scrollTo(0,0)});
 
@@ -406,7 +415,10 @@ function setDock(html){const d=$('#dock');d.innerHTML=html?`<div class="dock"><d
 
 function render(){
   $('#hdrName').textContent=D.supplier.name||'Bahulu Kundur';$('#hdrSub').textContent=D.supplier.sub||'Hantar stok, kutip baki, terima bayaran';
-  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  if(!isAdmin()&&tab==='laporan')tab='hantar';
+  const ns=$('#navSet');if(ns)ns.lastChild.textContent=isAdmin()?'Tetapan':'Akaun';
+  document.querySelectorAll('nav button').forEach(b=>{b.classList.toggle('on',b.dataset.tab===tab);if(b.dataset.tab==='laporan')b.style.display=isAdmin()?'':'none'});
+  $('#hdrSub').textContent=(D.supplier.sub||'Hantar stok, kutip baki, terima bayaran')+(cloudOn()&&getPin()?' · '+(isAdmin()?'Admin':'Staff'):'');
   setDock('');
   if(tab==='hantar')vHantar();
   else if(tab==='resit')openId?vDetail():vList();
@@ -478,10 +490,11 @@ function vDetail(){
   const c=D.cons.find(x=>x.id===openId);if(!c){openId=null;return vList()}
   const editing=c.status==='aktif',mode=D.inMode||'jual',J=mode==='jual';
   const baki=c.settle?c.settle.baki:{};
+  if(editQtyId===c.id&&isAdmin())return vEditQty(c);
   const rows=c.items.map(i=>{const hasB=baki[i.pid]!==undefined,b=+baki[i.pid]||0,j=i.qty-b;
     const val=hasB?(J?j:b):'';
     const pr=editing?curPrice(c,i):kp(c,i);
-    return `<div class="drow"><div class="top"><b>${esc(i.name)}</b>${editing?`<label class="prc">RM <input type="number" step="0.01" min="0" inputmode="decimal" id="pr_${i.pid}" value="${pr}" oninput="calc()" aria-label="Harga sebalang ${esc(i.name)}"> / balang</label>`:`<span>${rm(pr)} / balang</span>`}</div>
+    return `<div class="drow"><div class="top"><b>${esc(i.name)}</b>${editing&&isAdmin()?`<label class="prc">RM <input type="number" step="0.01" min="0" inputmode="decimal" id="pr_${i.pid}" value="${pr}" oninput="calc()" aria-label="Harga sebalang ${esc(i.name)}"> / balang</label>`:`<span>${rm(pr)} / balang</span>`}</div>
     <div class="bot"><div class="kv"><div><small>Hantar</small><b>${i.qty}</b></div>
       ${editing?`<div><small>${J?'Baki':'Terjual'}</small><b id="o_${i.pid}">${J?b:j}</b></div>`:`<div class="sold"><small>Terjual</small><b>${j}</b></div>`}
       <div><small>RM</small><b id="s_${i.pid}">${(j*pr).toFixed(2)}</b></div></div>
@@ -497,9 +510,11 @@ function vDetail(){
   :`<div class="sec" style="margin-top:4px">Ringkasan jualan</div>`}
   <div class="card flush">${rows}</div>
   ${editing?`<div class="grid2"><button class="btn ghost" onclick="printHantar(D.cons.find(x=>x.id==='${c.id}'))">${IC.receiptSm} Resit hantaran</button>
-    <button class="btn ghost danger" onclick="padam('${c.id}')">${IC.trash} Padam</button></div>`
+    ${isAdmin()?`<button class="btn ghost" onclick="editQtyId='${c.id}';vDetail()">Edit hantaran</button>`:''}</div>
+    ${isAdmin()?`<button class="btn ghost danger" style="margin-top:10px" onclick="padam('${c.id}')">${IC.trash} Padam resit</button>`:''}`
   :`<div class="grid2"><button class="btn ghost" onclick="printBayar(D.cons.find(x=>x.id==='${c.id}'))">${IC.receiptSm} Lihat resit</button>
-    <button class="btn ghost" onclick="editSemula('${c.id}')">Edit jualan</button></div>`}`;
+    ${isAdmin()?`<button class="btn ghost" onclick="editSemula('${c.id}')">Edit jualan</button>`:''}</div>
+    ${isAdmin()?`<button class="btn ghost danger" style="margin-top:10px" onclick="padam('${c.id}')">${IC.trash} Padam resit</button>`:`<p class="hint">Tersilap? Minta Admin betulkan resit ini.</p>`}`}`;
   const total=c.settle?c.settle.total:c.items.reduce((a,i)=>a+i.qty*i.price,0);
   setDock(editing?`<div class="tot"><small>Kedai perlu bayar</small><b id="tot">${rm(total)}</b></div><button class="btn primary" onclick="kutip()">${IC.print} Kutip &amp; cetak</button>`
     :`<div class="tot"><small>Dibayar</small><b id="tot">${rm(total)}</b></div><button class="btn primary" onclick="hantarLagi('${c.id}')">${IC.plus} Hantar stok baru</button>`);
@@ -516,7 +531,27 @@ function bakiStep(pid,d,max){const el=document.querySelector(`input[data-pid="${
 /* Baki untuk satu item, ikut cara isi semasa */
 function readBaki(i){const el=document.querySelector(`input[data-pid="${i.pid}"]`);const v=Math.max(0,+el.value||0);
   return (D.inMode||'jual')==='jual'?i.qty-Math.min(i.qty,v):Math.min(i.qty,v)}
-function readPrice(i){const el=$('#pr_'+i.pid);return el?Math.max(0,+el.value||0):+i.price}
+function readPrice(i){const el=$('#pr_'+i.pid);if(el)return Math.max(0,+el.value||0);const c=D.cons.find(x=>x.id===openId);return c?curPrice(c,i):+i.price}
+/* Admin: edit kuantiti hantaran */
+let editQtyId=null;
+function vEditQty(c){
+  const rows=D.products.map(p=>{const it=c.items.find(i=>i.pid===p.id);const q=it?it.qty:0;
+    return `<div class="prow"><div class="pic">${IC.jar}</div><div class="pname"><b>${esc(p.name)}</b><small>${rm(it?it.price:p.price)} sebalang</small></div>
+    <div class="stepper"><button aria-label="Kurang" onclick="eqStep('${p.id}',-1)">−</button><input type="number" inputmode="numeric" min="0" id="eq_${p.id}" value="${q||''}" placeholder="0">
+    <button aria-label="Tambah" onclick="eqStep('${p.id}',1)">+</button></div></div>`}).join('');
+  $('#app').innerHTML=`<div class="pt"><button class="back" aria-label="Batal" onclick="editQtyId=null;vDetail()">${IC.back}</button><h2 style="font-size:20px">Edit hantaran</h2></div>
+  <div class="meta"><span>${c.no}</span><span>${esc(shopName(c.shopId))}</span><span>Hantar ${fmtD(c.date)}</span></div>
+  <div class="card flush">${rows}</div><p class="hint">Perubahan direkod dalam Log aktiviti.</p>`;
+  setDock(`<div class="tot"><small>Simpan perubahan</small><b>Edit hantaran</b></div><button class="btn primary" onclick="simpanQty('${c.id}')">Simpan</button>`);
+}
+function eqStep(pid,d){const el=$('#eq_'+pid);el.value=Math.max(0,(+el.value||0)+d)||''}
+async function simpanQty(id){
+  const c=D.cons.find(x=>x.id===id);const items=[];
+  D.products.forEach(p=>{const q=Math.max(0,Math.floor(+($('#eq_'+p.id).value)||0));if(!q)return;
+    const old=c.items.find(i=>i.pid===p.id);items.push({pid:p.id,name:old?old.name:p.name,price:old?old.price:+p.price,qty:q})});
+  if(!items.length)return toast('Sekurang-kurangnya satu produk');
+  c.items=items;c.updatedAt=Date.now();queue('cons',c);editQtyId=null;await commit();vDetail();toast('Hantaran dikemas kini');
+}
 function calc(){
   const c=D.cons.find(x=>x.id===openId),J=(D.inMode||'jual')==='jual';let t=0;
   c.items.forEach(i=>{const b=readBaki(i),j=i.qty-b,pr=readPrice(i);t+=j*pr;
@@ -675,6 +710,14 @@ async function laporanPDF(){
 
 /* ---------- TETAPAN ---------- */
 function vTetapan(){
+  if(!isAdmin()){
+    $('#app').innerHTML=`<div class="pt"><h2>Akaun</h2></div>
+    <div class="card"><div class="li" style="box-shadow:none;padding:0;margin:0"><div class="av">ST</div><div class="mid"><b>Staff</b><small>Boleh hantar stok, kutip dan cetak resit</small></div></div></div>
+    <div class="card"><p class="muted" style="margin:0 0 12px">${(D.outbox||[]).length?(D.outbox.length+' perubahan belum dihantar ke cloud.'):'Semua data dah disimpan ke Google Sheets.'}</p>
+    <p class="muted" style="margin:0 0 12px">Harga, produk dan tetapan resit hanya boleh diubah oleh Admin.</p>
+    <button class="btn ghost" onclick="logout()">Log keluar</button></div>`;
+    return;
+  }
   $('#app').innerHTML=`<div class="pt"><h2>Tetapan</h2></div>
   <div class="sec" style="margin-top:4px">Maklumat pada resit</div>
   <div class="card">
@@ -692,7 +735,8 @@ function vTetapan(){
   <div class="card flush">${D.shops.length?D.shops.map(s=>`<div class="srow"><input class="input sh" value="${esc(s.name)}" style="flex:2" aria-label="Nama kedai"><input class="input sph" value="${esc(s.phone||'')}" placeholder="Telefon" inputmode="tel" style="flex:1" aria-label="Telefon kedai"></div>`).join(''):'<p class="muted" style="padding:12px 0">Kedai ditambah semasa hantar stok.</p>'}</div>
   ${cloudOn()?`<div class="sec">Keselamatan &amp; data</div>
   <div class="card">
-    <div class="field"><label for="npin">Tukar PIN (biar kosong jika tak tukar)</label><input class="input" id="npin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN baru 4–8 digit"></div>
+    <div class="field"><label for="npin">PIN Admin baru (biar kosong jika tak tukar)</label><input class="input" id="npin" type="password" inputmode="numeric" maxlength="8" placeholder="6–8 digit"></div>
+    <div class="field"><label for="spin">PIN Staff baru (biar kosong jika tak tukar)</label><input class="input" id="spin" type="password" inputmode="numeric" maxlength="8" placeholder="4–8 digit"></div>
     <p class="muted" style="margin:4px 2px 12px">${(D.outbox||[]).length?(D.outbox.length+' perubahan belum dihantar ke cloud.'):'Semua data dah disimpan ke Google Sheets.'}${lastSync?' Sync terakhir '+new Date(lastSync).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})+'.':''}</p>
     <button class="btn ghost" onclick="logout()">Log keluar dari telefon ini</button>
   </div>`:''}
@@ -709,7 +753,11 @@ async function simpanTetapan(){
   const now=Date.now();D.shops.forEach(x=>{x.updatedAt=now;queue('shop',x)});
   queue('supplier',D.supplier);queue('products',D.products);
   const np=($('#npin')||{}).value;
-  if(np){if(!/^\d{4,8}$/.test(np))return toast('PIN baru mesti 4 hingga 8 digit');queue('pin',np);setPin(np)}
+  const sp=($('#spin')||{}).value;
+  if(np&&!/^\d{6,8}$/.test(np))return toast('PIN Admin mesti 6 hingga 8 digit');
+  if(sp&&!/^\d{4,8}$/.test(sp))return toast('PIN Staff mesti 4 hingga 8 digit');
+  if(np&&sp&&np===sp)return toast('PIN Admin dan Staff mesti berbeza');
+  if(np||sp){queue('pin',{admin:np||'',staff:sp||''});if(np)setPin(np)}
   await commit();render();toast('Tetapan disimpan');
 }
 
