@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#7A3F14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bahulu Kundur">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237A3F14'/%3E%3Cpath d='M32 10c4 0 5 4 8 4s7-1 9 1 0 6 1 9 5 4 5 8-4 5-4 8 2 6 0 9-6 0-9 1-4 5-8 5-5-4-8-4-7 1-9-1 0-6-1-9-5-4-5-8 4-5 4-8-2-6 0-9 6 0 9-1 4-5 8-5z' fill='%23E8A93E'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%237A3F14' opacity='.4'/%3E%3C/svg%3E">
+<title>Bahulu Kundur · KOMASKO</title>
+<style>
+:root{
+  --bg:#F7F2EA;--surface:#FFFFFF;--surface2:#FBF7F1;--ink:#2B1A0E;--muted:#85705E;--line:#ECE3D6;
+  --brand:#7A3F14;--brand2:#9C5420;--gold:#E0A23A;--goldSoft:#FBEFD8;--ok:#1F8A4C;--okSoft:#E3F4EA;--warn:#C2410C;--warnSoft:#FDECE3;
+  --shadow:0 1px 2px rgba(60,35,15,.06),0 6px 18px rgba(60,35,15,.07);
+  --r:18px;--navH:68px;--barH:60px;color-scheme:light
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#15100B;--surface:#211810;--surface2:#2A1F15;--ink:#F5E9D7;--muted:#B39C84;--line:#3A2C1E;
+  --brand:#E9A85A;--brand2:#F2BC74;--gold:#E9A85A;--goldSoft:#3A2A17;--ok:#5BC489;--okSoft:#183324;--warn:#F28B5B;--warnSoft:#3A1F14;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior-y:none;
+  padding:calc(var(--barH) + env(safe-area-inset-top)) 0 calc(var(--navH) + env(safe-area-inset-bottom) + 16px)}
+body.hasDock{padding-bottom:calc(var(--navH) + env(safe-area-inset-bottom) + 96px)}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0;touch-action:manipulation}
+button:active{transform:scale(.97)}
+input,select{font:inherit;color:var(--ink)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* App bar */
+.appbar{position:fixed;top:0;left:0;right:0;z-index:20;padding-top:env(safe-area-inset-top);
+  background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);
+  border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.appbar .in{max-width:600px;margin:0 auto;height:var(--barH);display:flex;align-items:center;gap:12px;padding:0 16px}
+.logo{width:38px;height:38px;border-radius:11px;background:var(--brand);display:grid;place-items:center;flex:none;box-shadow:0 3px 8px rgba(122,63,20,.25)}
+.brand{flex:1;min-width:0}
+.brand h1{margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand p{margin:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px 0 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--muted)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:#B8AA9B}
+.chip.connected{background:var(--okSoft);border-color:transparent;color:var(--ok)}.chip.connected .dot{background:var(--ok)}
+.chip.connecting .dot{background:var(--gold);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+
+/* Layout */
+main{max-width:600px;margin:0 auto;padding:6px 16px 0}
+.pt{display:flex;align-items:center;gap:10px;margin:14px 2px 14px}
+.pt h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em;flex:1}
+.back{width:40px;height:40px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;flex:none}
+.sec{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:22px 4px 8px}
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
+.card.flush{padding:4px 16px}
+.muted{color:var(--muted);font-size:13px}
+.hint{color:var(--muted);font-size:12.5px;margin:8px 4px 0}
+
+/* Form */
+.field{margin-bottom:12px}.field:last-child{margin-bottom:0}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 6px 2px}
+.input,select{width:100%;height:48px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface2);outline:none;transition:border-color .15s}
+.input:focus,select:focus{border-color:var(--gold);background:var(--surface)}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2385705E' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+
+/* Product rows + steppers */
+.prow{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:none}
+.pic{width:44px;height:44px;border-radius:12px;background:var(--goldSoft);display:grid;place-items:center;flex:none}
+.pname{flex:1;min-width:0}
+.pname b{display:block;font-weight:700;font-size:15px;line-height:1.25}
+.pname small{color:var(--muted);font-size:12.5px}
+.stepper{display:flex;align-items:center;background:var(--surface2);border:1.5px solid var(--line);border-radius:12px;height:42px;flex:none}
+.stepper button{width:38px;height:100%;font-size:20px;font-weight:600;color:var(--brand);display:grid;place-items:center}
+.stepper input{width:40px;height:100%;border:none;background:none;text-align:center;font-weight:700;font-size:16px;outline:none;-moz-appearance:textfield}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:16px;font-weight:700;font-size:15.5px}
+.btn.primary{background:linear-gradient(180deg,var(--brand2),var(--brand));color:#FFF8EE;box-shadow:0 6px 16px rgba(122,63,20,.28)}
+@media (prefers-color-scheme:dark){.btn.primary{color:#1E140B}}
+.btn.ghost{background:var(--surface);border:1.5px solid var(--line);min-height:48px;font-size:14.5px;font-weight:600}
+.btn.danger{color:var(--warn)}
+.btn[disabled]{opacity:.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+
+/* Dock (summary + action above nav) */
+.dock{position:fixed;left:0;right:0;bottom:calc(var(--navH) + env(safe-area-inset-bottom));z-index:15;padding:10px 16px 12px;
+  background:linear-gradient(180deg,transparent,var(--bg) 22%)}
+.dock .in{max-width:568px;margin:0 auto;display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:20px;box-shadow:0 8px 28px rgba(60,35,15,.16);padding:10px 10px 10px 16px}
+.dock .tot{flex:1;min-width:0}
+.dock .tot small{display:block;font-size:12px;color:var(--muted)}
+.dock .tot b{font-size:20px;font-weight:800;letter-spacing:-.01em}
+.dock .btn{width:auto;padding:0 18px;min-height:50px;flex:none}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+.stat{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:12px}
+.stat small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
+.stat b{display:block;font-size:17px;font-weight:800;margin-top:2px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat.hl{background:var(--brand);color:#FFF8EE}.stat.hl small{color:rgba(255,248,238,.75)}
+@media (prefers-color-scheme:dark){.stat.hl{color:#1E140B}.stat.hl small{color:rgba(30,20,11,.7)}}
+
+/* Segmented */
+.seg{display:flex;background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:4px;margin:14px 0 12px}
+.seg button{flex:1;height:38px;border-radius:10px;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(60,35,15,.12)}
+.seg .n{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:10px;background:var(--goldSoft);color:var(--brand);font-size:12px;line-height:20px}
+
+/* List items */
+.li{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:14px;margin-bottom:10px}
+.av{width:44px;height:44px;border-radius:50%;background:var(--goldSoft);color:var(--brand);display:grid;place-items:center;font-weight:800;font-size:16px;flex:none}
+.li .mid{flex:1;min-width:0}
+.li .mid b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .mid small{display:block;color:var(--muted);font-size:12.5px;margin-top:1px}
+.li .end{text-align:right;flex:none}
+.li .end b{display:block;font-size:14.5px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;margin-top:4px}
+.pill.aktif{background:var(--goldSoft);color:var(--brand)}.pill.selesai{background:var(--okSoft);color:var(--ok)}
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty .ico{width:64px;height:64px;border-radius:20px;background:var(--goldSoft);display:grid;place-items:center;margin:0 auto 12px}
+
+/* Detail */
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 2px 14px}
+.meta span{font-size:12.5px;background:var(--surface);border:1px solid var(--line);padding:4px 10px;border-radius:999px;color:var(--muted)}
+.drow{padding:14px 0;border-bottom:1px solid var(--line)}
+.drow:last-child{border-bottom:none}
+.drow .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.drow .top b{font-size:15px}.drow .top span{font-size:13px;color:var(--muted)}
+.drow .bot{display:flex;align-items:center;gap:10px;margin-top:10px}
+.kv{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.kv div{background:var(--surface2);border-radius:10px;padding:6px 8px;text-align:center}
+.kv small{display:block;font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.kv b{font-size:15px}
+.kv .sold b{color:var(--ok)}
+
+/* Settings */
+.srow{display:flex;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:none}
+.srow .input{height:44px}
+.icon-btn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--warn);background:var(--warnSoft);flex:none}
+.add{color:var(--brand);font-weight:700;padding:12px 2px;display:flex;align-items:center;gap:6px}
+
+/* Bottom nav */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav .in{max-width:600px;margin:0 auto;height:var(--navH);display:flex}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--muted)}
+nav button .ic{width:56px;height:30px;border-radius:15px;display:grid;place-items:center;transition:background .2s}
+nav button.on{color:var(--brand)}
+nav button.on .ic{background:var(--goldSoft)}
+nav svg{width:22px;height:22px}
+
+#toast{position:fixed;left:50%;bottom:calc(var(--navH) + env(safe-area-inset-bottom) + 100px);transform:translate(-50%,10px);z-index:30;
+  background:#2B1A0E;color:#FFF8EE;padding:11px 18px;border-radius:14px;font-size:14px;font-weight:500;opacity:0;transition:.2s;pointer-events:none;max-width:88vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#print{display:none}
+.fade{animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{
+  @page{size:58mm auto;margin:2mm}
+  body{background:#fff;padding:0}
+  body>*:not(#print){display:none!important}
+  #print{display:block;width:54mm;color:#000;font:11px/1.35 "Courier New",monospace}
+  #print .c{text-align:center}#print .b{font-weight:700}
+  #print hr{border:none;border-top:1px dashed #000;margin:4px 0}
+  #print .r{display:flex;justify-content:space-between;gap:4px}
+  #print .tot{font-size:14px;font-weight:700}
+}
+</style>
+</head>
+<body>
+<header class="appbar"><div class="in">
+  <div class="logo"><svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10c4 0 5 4 8 4s7-1 9 1 0 6 1 9 5 4 5 8-4 5-4 8 2 6 0 9-6 0-9 1-4 5-8 5-5-4-8-4-7 1-9-1 0-6-1-9-5-4-5-8 4-5 4-8-2-6 0-9 6 0 9-1 4-5 8-5z" fill="#E8A93E"/><circle cx="32" cy="32" r="7" fill="#7A3F14" opacity=".45"/></svg></div>
+  <div class="brand"><h1 id="hdrName">Bahulu Kundur</h1><p id="hdrSub">Keluaran KOMASKO</p></div>
+  <button class="chip" id="pbar" onclick="btToggle()" aria-label="Sambung printer">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>
+    <span class="dot"></span><span id="ptext">Printer</span></button>
+</div></header>
+<main id="app"></main>
+<div id="dock"></div>
+<nav><div class="in">
+  <button data-tab="hantar"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v10H3z"/><path d="M14 10h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></span>Hantar</button>
+  <button data-tab="resit"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>Resit</button>
+  <button data-tab="tetapan"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>Tetapan</button>
+</div></nav>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="print"></div>
+
+<script>
+const KEY='bahulu-kundur-v1';
+let D={supplier:{name:'Bahulu Kundur',sub:'Keluaran KOMASKO',phone:'',note:'Terima kasih. Bayaran ikut jualan sebenar.'},
+  products:[{id:'p1',name:'Bahulu Ori (balang)',price:12},{id:'p2',name:'Bahulu Perisa (balang)',price:15}],
+  shops:[],cons:[],seq:0};
+let tab='hantar',filter='aktif',openId=null,draft={shopId:'',qty:{}};
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rm=n=>'RM'+Number(n||0).toFixed(2);
+const today=()=>new Date().toISOString().slice(0,10);
+const fmtD=d=>d?d.split('-').reverse().join('/'):'';
+const uid=()=>Math.random().toString(36).slice(2,9);
+const shopName=id=>(D.shops.find(s=>s.id===id)||{}).name||'(kedai dipadam)';
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+
+/* Simpanan: guna window.storage dalam artifact Claude, localStorage di tempat lain (GitHub Pages, fail di telefon) */
+const hasArtifactStore=()=>window.storage&&typeof window.storage.get==='function';
+async function load(){
+  try{
+    let v=null;
+    if(hasArtifactStore()){const r=await window.storage.get(KEY,false);v=r&&r.value}
+    else v=localStorage.getItem(KEY);
+    if(v)D=Object.assign(D,JSON.parse(v));
+  }catch(e){}
+  render();
+}
+async function save(){
+  try{
+    if(hasArtifactStore()){const r=await window.storage.set(KEY,JSON.stringify(D),false);if(!r)toast('Data tak tersimpan')}
+    else localStorage.setItem(KEY,JSON.stringify(D));
+  }catch(e){toast('Data tak tersimpan')}
+}
+
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;openId=null;render();window.scrollTo(0,0)});
+
+const IC={
+  jar:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8v3H8z"/><path d="M7 6h10a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><path d="M9 12h6"/></svg>',
+  back:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  print:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>',
+  chev:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>',
+  trash:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>',
+  plus:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  receipt:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>'
+};
+const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+function setDock(html){const d=$('#dock');d.innerHTML=html?`<div class="dock"><div class="in">${html}</div></div>`:'';document.body.classList.toggle('hasDock',!!html)}
+
+function render(){
+  $('#hdrName').textContent=D.supplier.name||'Bahulu Kundur';$('#hdrSub').textContent=D.supplier.sub||'Hantar stok, kutip baki, terima bayaran';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  setDock('');
+  if(tab==='hantar')vHantar();
+  else if(tab==='resit')openId?vDetail():vList();
+  else vTetapan();
+  $('#app').classList.remove('fade');void $('#app').offsetWidth;$('#app').classList.add('fade');
+}
+
+/* ---------- HANTAR STOK ---------- */
+function vHantar(){
+  const opts=D.shops.map(s=>`<option value="${s.id}" ${draft.shopId===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
+  const rows=D.products.map(p=>{const q=+draft.qty[p.id]||0;
+    return `<div class="prow"><div class="pic">${IC.jar}</div><div class="pname"><b>${esc(p.name)}</b><small>${rm(p.price)} sebalang</small></div>
+    <div class="stepper"><button aria-label="Kurang" onclick="step('${p.id}',-1)">−</button>
+    <input type="number" inputmode="numeric" min="0" value="${q||''}" placeholder="0" id="q_${p.id}" oninput="draft.qty['${p.id}']=this.value;upd()">
+    <button aria-label="Tambah" onclick="step('${p.id}',1)">+</button></div></div>`}).join('');
+  $('#app').innerHTML=`<div class="pt"><h2>Hantar stok</h2></div>
+  <div class="card">
+    <div class="field"><label for="shop">Kedai</label>
+    <select id="shop" onchange="draft.shopId=this.value;vHantar()">
+      <option value="">Pilih kedai…</option>${opts}<option value="__new" ${draft.shopId==='__new'?'selected':''}>+ Tambah kedai baru</option>
+    </select></div>
+    ${draft.shopId==='__new'?`<div class="field"><label for="ns">Nama kedai</label><input class="input" id="ns" placeholder="Contoh: Kedai Runcit Pak Ali"></div>
+    <div class="field"><label for="np">No. telefon (pilihan)</label><input class="input" id="np" inputmode="tel" placeholder="012-3456789"></div>`:''}
+  </div>
+  <div class="sec">Produk</div>
+  <div class="card flush">${rows||'<p class="muted" style="padding:12px 0">Tiada produk. Tambah di Tetapan.</p>'}</div>`;
+  setDock(`<div class="tot"><small id="u">0 balang</small><b id="t">RM0.00</b></div>
+    <button class="btn primary" onclick="hantar()">${IC.print} Simpan &amp; cetak</button>`);
+  upd();
+}
+function step(id,d){draft.qty[id]=Math.max(0,(+draft.qty[id]||0)+d);const el=$('#q_'+id);if(el)el.value=draft.qty[id]||'';upd()}
+function upd(){let t=0,u=0;D.products.forEach(p=>{const q=+draft.qty[p.id]||0;t+=q*p.price;u+=q});const a=$('#u'),b=$('#t');if(a)a.textContent=u+' balang · nilai stok';if(b)b.textContent=rm(t)}
+async function hantar(){
+  let sid=draft.shopId;
+  if(sid==='__new'){const n=$('#ns').value.trim();if(!n)return toast('Isi nama kedai');sid=uid();D.shops.push({id:sid,name:n,phone:$('#np').value.trim()})}
+  if(!sid)return toast('Pilih kedai dulu');
+  const items=D.products.filter(p=>+draft.qty[p.id]>0).map(p=>({pid:p.id,name:p.name,price:+p.price,qty:+draft.qty[p.id]}));
+  if(!items.length)return toast('Masukkan kuantiti');
+  D.seq++;const c={id:uid(),no:'K'+String(D.seq).padStart(4,'0'),shopId:sid,date:today(),items,status:'aktif',settle:null};
+  D.cons.unshift(c);await save();draft={shopId:'',qty:{}};
+  printHantar(c);tab='resit';openId=c.id;render();toast('Resit '+c.no+' disimpan');
+}
+
+/* ---------- SENARAI RESIT ---------- */
+function vList(){
+  const aktif=D.cons.filter(c=>c.status==='aktif'),selesai=D.cons.filter(c=>c.status==='selesai');
+  const stokNilai=aktif.reduce((a,c)=>a+c.items.reduce((s,i)=>s+i.qty*i.price,0),0);
+  const bln=today().slice(0,7),kutip=selesai.filter(c=>c.settle&&c.settle.date.slice(0,7)===bln).reduce((a,c)=>a+c.settle.total,0);
+  const list=filter==='aktif'?aktif:selesai;
+  $('#app').innerHTML=`<div class="pt"><h2>Resit</h2></div>
+  <div class="stats">
+    <div class="stat hl"><small>Belum kutip</small><b>${aktif.length} kedai</b></div>
+    <div class="stat"><small>Stok di kedai</small><b>${rm(stokNilai)}</b></div>
+    <div class="stat"><small>Kutipan bulan ini</small><b>${rm(kutip)}</b></div>
+  </div>
+  <div class="seg"><button class="${filter==='aktif'?'on':''}" onclick="filter='aktif';vList()">Belum kutip<span class="n">${aktif.length}</span></button>
+  <button class="${filter==='selesai'?'on':''}" onclick="filter='selesai';vList()">Dah bayar<span class="n">${selesai.length}</span></button></div>
+  ${list.length?list.map(c=>{const u=c.items.reduce((a,i)=>a+i.qty,0),nm=shopName(c.shopId);
+    const amt=c.settle?c.settle.total:c.items.reduce((a,i)=>a+i.qty*i.price,0);
+    return `<button class="li" onclick="openId='${c.id}';render();window.scrollTo(0,0)"><div class="av">${esc(initials(nm))}</div>
+    <div class="mid"><b>${esc(nm)}</b><small>${c.no} · ${fmtD(c.settle?c.settle.date:c.date)} · ${u} balang</small></div>
+    <div class="end"><b>${rm(amt)}</b><span class="pill ${c.status}">${c.status==='aktif'?'Belum kutip':'Dah bayar'}</span></div>${IC.chev}</button>`}).join('')
+  :`<div class="empty"><div class="ico">${IC.receipt}</div><b>${filter==='aktif'?'Tiada stok belum dikutip':'Belum ada kutipan'}</b><p class="muted">${filter==='aktif'?'Mula dengan tab Hantar untuk hantar stok ke kedai.':'Resit bayaran akan muncul di sini.'}</p></div>`}`;
+}
+
+/* ---------- DETAIL / KEMASKINI BAKI ---------- */
+function vDetail(){
+  const c=D.cons.find(x=>x.id===openId);if(!c){openId=null;return vList()}
+  const editing=c.status==='aktif';
+  const baki=c.settle?c.settle.baki:{};
+  const rows=c.items.map(i=>{const b=baki[i.pid]??'';const j=i.qty-(+b||0);
+    return `<div class="drow"><div class="top"><b>${esc(i.name)}</b><span>${rm(i.price)} / balang</span></div>
+    <div class="bot"><div class="kv"><div><small>Hantar</small><b>${i.qty}</b></div><div class="sold"><small>Jual</small><b id="j_${i.pid}">${j}</b></div><div><small>RM</small><b id="s_${i.pid}">${(j*i.price).toFixed(2)}</b></div></div>
+    ${editing?`<div class="stepper" title="Baki"><button aria-label="Kurang baki" onclick="bakiStep('${i.pid}',-1,${i.qty})">−</button>
+      <input type="number" inputmode="numeric" min="0" max="${i.qty}" value="${b}" placeholder="0" data-pid="${i.pid}" oninput="calc()" aria-label="Baki ${esc(i.name)}">
+      <button aria-label="Tambah baki" onclick="bakiStep('${i.pid}',1,${i.qty})">+</button></div>`:`<div class="kv" style="flex:none;grid-template-columns:1fr"><div><small>Baki</small><b>${b||0}</b></div></div>`}
+    </div></div>`}).join('');
+  $('#app').innerHTML=`<div class="pt"><button class="back" aria-label="Kembali" onclick="openId=null;render()">${IC.back}</button><h2 style="font-size:20px">${esc(shopName(c.shopId))}</h2></div>
+  <div class="meta"><span>${c.no}</span><span>Hantar ${fmtD(c.date)}</span>${c.settle?`<span>Kutip ${fmtD(c.settle.date)}</span>`:''}<span class="pill ${c.status}" style="margin:0">${editing?'Belum kutip':'Dah bayar'}</span></div>
+  ${editing?`<div class="sec" style="margin-top:4px">Masukkan baki balang di kedai</div>`:`<div class="sec" style="margin-top:4px">Ringkasan jualan</div>`}
+  <div class="card flush">${rows}</div>
+  ${editing?`<div class="grid2"><button class="btn ghost" onclick="printHantar(D.cons.find(x=>x.id==='${c.id}'))">${IC.print} Resit hantaran</button>
+    <button class="btn ghost danger" onclick="padam('${c.id}')">${IC.trash} Padam</button></div>`
+  :`<div class="grid2"><button class="btn ghost" onclick="printBayar(D.cons.find(x=>x.id==='${c.id}'))">${IC.print} Cetak semula</button>
+    <button class="btn ghost" onclick="editSemula('${c.id}')">Edit baki</button></div>`}`;
+  const total=c.settle?c.settle.total:c.items.reduce((a,i)=>a+i.qty*i.price,0);
+  setDock(editing?`<div class="tot"><small>Kedai perlu bayar</small><b id="tot">${rm(total)}</b></div><button class="btn primary" onclick="kutip()">${IC.print} Kutip &amp; cetak</button>`
+    :`<div class="tot"><small>Dibayar</small><b id="tot">${rm(total)}</b></div><button class="btn primary" onclick="hantarLagi('${c.id}')">${IC.plus} Hantar stok baru</button>`);
+  if(editing)calc();
+}
+function bakiStep(pid,d,max){const el=document.querySelector(`input[data-pid="${pid}"]`);el.value=Math.min(max,Math.max(0,(+el.value||0)+d));calc()}
+function calc(){
+  const c=D.cons.find(x=>x.id===openId);let t=0;
+  c.items.forEach(i=>{const el=document.querySelector(`input[data-pid="${i.pid}"]`);let b=Math.min(i.qty,Math.max(0,+el.value||0));
+    const j=i.qty-b;t+=j*i.price;$('#j_'+i.pid).textContent=j;$('#s_'+i.pid).textContent=(j*i.price).toFixed(2)});
+  $('#tot').textContent=rm(t);
+}
+async function kutip(){
+  const c=D.cons.find(x=>x.id===openId);const baki={};let t=0;
+  for(const i of c.items){const v=+document.querySelector(`input[data-pid="${i.pid}"]`).value||0;
+    if(v>i.qty)return toast('Baki '+i.name+' lebih dari stok dihantar');baki[i.pid]=v;t+=(i.qty-v)*i.price}
+  c.settle={date:today(),baki,total:t};c.status='selesai';await save();printBayar(c);render();toast('Bayaran '+rm(t)+' direkod');
+}
+async function editSemula(id){const c=D.cons.find(x=>x.id===id);c.status='aktif';await save();render()}
+async function padam(id){if(!confirm('Padam resit ini?'))return;D.cons=D.cons.filter(x=>x.id!==id);openId=null;await save();render()}
+function hantarLagi(id){const c=D.cons.find(x=>x.id===id);draft={shopId:c.shopId,qty:{}};tab='hantar';openId=null;render();window.scrollTo(0,0)}
+
+/* ---------- TETAPAN ---------- */
+function vTetapan(){
+  $('#app').innerHTML=`<div class="pt"><h2>Tetapan</h2></div>
+  <div class="sec" style="margin-top:4px">Maklumat pada resit</div>
+  <div class="card">
+    <div class="field"><label for="sn">Nama perniagaan</label><input class="input" id="sn" value="${esc(D.supplier.name)}"></div>
+    <div class="field"><label for="ss">Baris kedua</label><input class="input" id="ss" value="${esc(D.supplier.sub||'')}" placeholder="Contoh: Keluaran KOMASKO"></div>
+    <div class="field"><label for="sp">No. telefon</label><input class="input" id="sp" inputmode="tel" value="${esc(D.supplier.phone)}"></div>
+    <div class="field"><label for="sx">Nota hujung resit</label><input class="input" id="sx" value="${esc(D.supplier.note)}"></div>
+  </div>
+  <div class="sec">Produk &amp; harga sebalang</div>
+  <div class="card flush" id="prods">${D.products.map((p,k)=>`<div class="row srow"><input class="input pn" value="${esc(p.name)}" style="flex:2" aria-label="Nama produk">
+  <input class="input pp" type="number" step="0.01" inputmode="decimal" value="${p.price}" style="flex:1;max-width:96px" aria-label="Harga"><button class="icon-btn" aria-label="Buang produk" onclick="buangP(${k})">${IC.trash}</button></div>`).join('')}
+  <button class="add" onclick="tambahP()">${IC.plus} Tambah produk</button></div>
+  <p class="hint">Harga baru hanya untuk hantaran baru. Resit lama kekal dengan harga asal.</p>
+  <div class="sec">Kedai</div>
+  <div class="card flush">${D.shops.length?D.shops.map(s=>`<div class="srow"><input class="input sh" value="${esc(s.name)}" style="flex:2" aria-label="Nama kedai"><input class="input sph" value="${esc(s.phone||'')}" placeholder="Telefon" inputmode="tel" style="flex:1" aria-label="Telefon kedai"></div>`).join(''):'<p class="muted" style="padding:12px 0">Kedai ditambah semasa hantar stok.</p>'}</div>
+  <div style="height:8px"></div>
+  <button class="btn primary" onclick="simpanTetapan()">Simpan tetapan</button>`;
+}
+function grabP(){document.querySelectorAll('#prods .row').forEach((r,k)=>{D.products[k].name=r.querySelector('.pn').value;D.products[k].price=+r.querySelector('.pp').value||0})}
+function tambahP(){grabP();D.products.push({id:uid(),name:'Produk baru',price:0});vTetapan()}
+function buangP(k){grabP();D.products.splice(k,1);vTetapan()}
+async function simpanTetapan(){
+  D.supplier={name:$('#sn').value.trim(),sub:$('#ss').value.trim(),phone:$('#sp').value.trim(),note:$('#sx').value.trim()};grabP();
+  document.querySelectorAll('.sh').forEach((el,k)=>{D.shops[k].name=el.value.trim()||D.shops[k].name});
+  document.querySelectorAll('.sph').forEach((el,k)=>{D.shops[k].phone=el.value.trim()});
+  await save();render();toast('Tetapan disimpan');
+}
+
+/* ---------- CETAK (kertas thermal 58mm) ---------- */
+function head(title,c){const s=D.shops.find(x=>x.id===c.shopId)||{};
+  return `<div class="c b" style="font-size:14px">${esc((D.supplier.name||'').toUpperCase())}</div>${D.supplier.sub?`<div class="c">${esc(D.supplier.sub)}</div>`:''}${D.supplier.phone?`<div class="c">${esc(D.supplier.phone)}</div>`:''}<hr>
+  <div class="c b">${title}</div><div>No: ${c.no}</div><div>Kedai: ${esc(s.name||'')}</div>${s.phone?`<div>Tel: ${esc(s.phone)}</div>`:''}`}
+function foot(){return `<hr><div class="c">${esc(D.supplier.note)}</div><br><div>Tandatangan kedai:</div><br><div>________________</div><br>`}
+function doPrint(html){$('#print').innerHTML=html;setTimeout(()=>window.print(),100)}
+
+/* ---------- PRINTER BLUETOOTH (sama macam POSKedai: Web Bluetooth + ESC/POS) ---------- */
+let btDevice=null,btChar=null,btBusy=false;
+const BT_SERVICES=['000018f0-0000-1000-8000-00805f9b34fb','0000ff00-0000-1000-8000-00805f9b34fb','e7810a71-73ae-499d-8c15-faa9aef0c3f2'];
+const BT_CHARS=['00002af1-0000-1000-8000-00805f9b34fb','0000ff01-0000-1000-8000-00805f9b34fb','bef8d6c9-9c21-4c9e-b632-bd58c1009f9f'];
+function setBt(state,text){const b=$('#pbar');b.className='chip '+state;
+  $('#ptext').textContent=state==='connected'?'Sedia':state==='connecting'?'…':'Printer';
+  b.setAttribute('aria-label',text);if(state!=='connecting'&&text!=='Printer belum disambung'&&state!=='connected')toast(text)}
+async function btToggle(){
+  if(btDevice&&btDevice.gatt.connected){btDevice.gatt.disconnect();return}
+  if(btDevice){return btAttach(btDevice)}
+  await btConnect();
+}
+async function btConnect(){
+  if(!navigator.bluetooth){toast('Bluetooth tak disokong. Guna Chrome di Android.');return}
+  setBt('connecting','Mencari printer...');
+  try{
+    btDevice=await navigator.bluetooth.requestDevice({
+      filters:[{services:[BT_SERVICES[0]]},{namePrefix:'Xprinter'},{namePrefix:'XP-'},{namePrefix:'RPP'},
+        {namePrefix:'MTP'},{namePrefix:'GOOJPRT'},{namePrefix:'Printer'},{namePrefix:'BlueTooth'}],
+      optionalServices:BT_SERVICES});
+    btDevice.addEventListener('gattserverdisconnected',()=>{btChar=null;setBt('','Printer terputus. Tekan untuk sambung semula')});
+    await btAttach(btDevice);
+  }catch(e){btChar=null;setBt('',e.name==='NotFoundError'?'Printer belum disambung':'Gagal sambung: '+e.message)}
+}
+async function btAttach(dev){
+  setBt('connecting','Menyambung ke '+(dev.name||'printer')+'...');
+  try{
+    const server=await dev.gatt.connect();let service=null;btChar=null;
+    for(const u of BT_SERVICES){try{service=await server.getPrimaryService(u);break}catch(e){}}
+    if(!service)throw new Error('Servis printer tidak dijumpai');
+    for(const u of BT_CHARS){try{btChar=await service.getCharacteristic(u);break}catch(e){}}
+    if(!btChar)throw new Error('Characteristic tidak dijumpai');
+    setBt('connected',(dev.name||'Printer')+' tersambung');toast('Printer berjaya disambung');
+  }catch(e){btChar=null;setBt('','Gagal sambung: '+e.message)}
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function btSend(bytes){
+  if(btBusy){toast('Printer sedang mencetak');return false}
+  btBusy=true;
+  try{
+    for(let i=0;i<bytes.length;i+=128){const ch=bytes.slice(i,i+128);
+      if(btChar.writeValueWithoutResponse)await btChar.writeValueWithoutResponse(ch);else await btChar.writeValue(ch);
+      await sleep(120)}
+    return true;
+  }catch(e){toast('Gagal cetak: '+e.message);return false}
+  finally{btBusy=false}
+}
+/* Teks untuk printer: buang huruf bukan ASCII (guna loop, bukan regex, macam fix POSKedai) */
+function toAscii(s){s=String(s??'');let o='';for(let k=0;k<s.length;k++){const ch=s[k],n=s.charCodeAt(k);
+  if(n<128)o+=ch;else if(ch==='·'||ch==='−'||ch==='–'||ch==='—')o+='-';else if(ch==='×')o+='x';else o+='?'}return o}
+const W=32;
+function lr(a,b){a=toAscii(a);b=toAscii(b);const sp=W-a.length-b.length;return sp>=1?a+' '.repeat(sp)+b:a+'\n'+' '.repeat(Math.max(0,W-b.length))+b}
+function wrap(s){s=toAscii(s);const out=[];let line='';s.split(' ').forEach(w=>{if((line+' '+w).trim().length>W){if(line)out.push(line);line=w}else line=(line+' '+w).trim()});if(line)out.push(line);return out.join('\n')}
+function escBuilder(){
+  const parts=[],enc=new TextEncoder();
+  const b={cmd:a=>{parts.push(new Uint8Array(a));return b},ln:(s='')=>{parts.push(enc.encode(toAscii(s)+'\n'));return b},
+    center:on=>b.cmd([0x1B,0x61,on?1:0]),bold:on=>b.cmd([0x1B,0x45,on?1:0]),big:on=>b.cmd([0x1D,0x21,on?0x11:0]),
+    hr:()=>b.ln('-'.repeat(W)),
+    build:()=>{const len=parts.reduce((s,p)=>s+p.length,0),buf=new Uint8Array(len);let o=0;parts.forEach(p=>{buf.set(p,o);o+=p.length});return buf}};
+  b.cmd([0x1B,0x40]); // INIT, kosongkan buffer printer
+  return b;
+}
+function escHead(b,title,c){
+  const s=D.shops.find(x=>x.id===c.shopId)||{};
+  b.center(1).bold(1).big(1).ln((D.supplier.name||'').toUpperCase()).big(0).bold(0);
+  if(D.supplier.sub)b.ln(D.supplier.sub);
+  if(D.supplier.phone)b.ln(D.supplier.phone);
+  b.center(0).hr().center(1).bold(1).ln(title).bold(0).center(0);
+  b.ln('No   : '+c.no).ln(wrap('Kedai: '+(s.name||'')));if(s.phone)b.ln('Tel  : '+s.phone);
+}
+function escFoot(b){
+  b.hr();if(D.supplier.note)b.center(1).ln(wrap(D.supplier.note)).center(0);
+  b.ln().ln('Tandatangan kedai:').ln().ln().ln('________________');
+  b.cmd([0x1B,0x64,0x03]).cmd([0x1D,0x56,0x42,0x00]); // feed 3 baris + potong
+  return b.build();
+}
+function bytesHantar(c){
+  const u=c.items.reduce((a,i)=>a+i.qty,0),v=c.items.reduce((a,i)=>a+i.qty*i.price,0),b=escBuilder();
+  escHead(b,'RESIT HANTARAN STOK',c);b.ln('Tarikh: '+fmtD(c.date)).hr();
+  c.items.forEach(i=>{b.bold(1).ln(wrap(i.name)).bold(0).ln(lr('  '+i.qty+' x '+i.price.toFixed(2),(i.qty*i.price).toFixed(2)))});
+  b.hr().ln(lr('Jumlah balang',String(u))).bold(1).ln(lr('Nilai stok',rm(v))).bold(0);
+  b.ln().ln(wrap('Bayaran dikutip ikut kuantiti terjual pada lawatan seterusnya.'));
+  return escFoot(b);
+}
+function bytesBayar(c){
+  const s=c.settle,b=escBuilder();
+  escHead(b,'RESIT BAYARAN JUALAN',c);b.ln('Hantar: '+fmtD(c.date)).ln('Kutip : '+fmtD(s.date)).hr();
+  c.items.forEach(i=>{const k=s.baki[i.pid]||0,j=i.qty-k;
+    b.bold(1).ln(wrap(i.name)).bold(0).ln('  Hantar '+i.qty+'  Baki '+k).ln(lr('  Jual '+j+' x '+i.price.toFixed(2),(j*i.price).toFixed(2)))});
+  b.hr().bold(1).big(1).center(1).ln('PERLU BAYAR').ln(rm(s.total)).big(0).bold(0).center(0);
+  return escFoot(b);
+}
+/* Cetak: guna printer Bluetooth kalau tersambung, kalau tak guna cetak browser */
+async function cetak(bytesFn,htmlFn,c){
+  if(btChar&&btDevice&&btDevice.gatt.connected){if(await btSend(bytesFn(c)))toast('Resit dicetak');return}
+  htmlFn(c);
+}
+function printHantar(c){return cetak(bytesHantar,printHantarHtml,c)}
+function printBayar(c){return cetak(bytesBayar,printBayarHtml,c)}
+
+function printHantarHtml(c){
+  const u=c.items.reduce((a,i)=>a+i.qty,0),v=c.items.reduce((a,i)=>a+i.qty*i.price,0);
+  doPrint(head('RESIT HANTARAN STOK',c)+`<div>Tarikh: ${fmtD(c.date)}</div><hr>`+
+  c.items.map(i=>`<div>${esc(i.name)}</div><div class="r"><span>${i.qty} x ${i.price.toFixed(2)}</span><span>${(i.qty*i.price).toFixed(2)}</span></div>`).join('')+
+  `<hr><div class="r"><span>Jumlah balang</span><span>${u}</span></div><div class="r b"><span>Nilai stok</span><span>${rm(v)}</span></div>
+  <div style="margin-top:4px">Bayaran dikutip ikut kuantiti terjual pada lawatan seterusnya.</div>`+foot());
+}
+function printBayarHtml(c){
+  const s=c.settle;
+  doPrint(head('RESIT BAYARAN JUALAN',c)+`<div>Hantar: ${fmtD(c.date)}</div><div>Kutip: ${fmtD(s.date)}</div><hr>`+
+  c.items.map(i=>{const b=s.baki[i.pid]||0,j=i.qty-b;return `<div>${esc(i.name)}</div>
+  <div class="r"><span>Hantar ${i.qty} Baki ${b}</span></div><div class="r"><span>Jual ${j} x ${i.price.toFixed(2)}</span><span>${(j*i.price).toFixed(2)}</span></div>`}).join('')+
+  `<hr><div class="r tot"><span>PERLU BAYAR</span><span>${rm(s.total)}</span></div>`+foot());
+}
+
+load();
+</script>
+</body>
+</html>
