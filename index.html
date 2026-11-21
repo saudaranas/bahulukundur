@@ -146,6 +146,8 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .kv small{display:block;font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .kv b{font-size:15px}
 .kv .sold b{color:var(--ok)}
+.prc{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--muted);margin:0;font-weight:600;white-space:nowrap}
+.prc input{width:74px;height:34px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface2);text-align:right;padding:0 8px;font-weight:700;color:var(--ink)}
 .inq{flex:none;text-align:center}.inq small{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--brand);margin-bottom:3px}
 
 /* Settings */
@@ -465,17 +467,19 @@ function vDetail(){
   const baki=c.settle?c.settle.baki:{};
   const rows=c.items.map(i=>{const hasB=baki[i.pid]!==undefined,b=+baki[i.pid]||0,j=i.qty-b;
     const val=hasB?(J?j:b):'';
-    return `<div class="drow"><div class="top"><b>${esc(i.name)}</b><span>${rm(i.price)} / balang</span></div>
+    const pr=editing?curPrice(c,i):kp(c,i);
+    return `<div class="drow"><div class="top"><b>${esc(i.name)}</b>${editing?`<label class="prc">RM <input type="number" step="0.01" min="0" inputmode="decimal" id="pr_${i.pid}" value="${pr}" oninput="calc()" aria-label="Harga sebalang ${esc(i.name)}"> / balang</label>`:`<span>${rm(pr)} / balang</span>`}</div>
     <div class="bot"><div class="kv"><div><small>Hantar</small><b>${i.qty}</b></div>
       ${editing?`<div><small>${J?'Baki':'Terjual'}</small><b id="o_${i.pid}">${J?b:j}</b></div>`:`<div class="sold"><small>Terjual</small><b>${j}</b></div>`}
-      <div><small>RM</small><b id="s_${i.pid}">${(j*i.price).toFixed(2)}</b></div></div>
+      <div><small>RM</small><b id="s_${i.pid}">${(j*pr).toFixed(2)}</b></div></div>
     ${editing?`<div class="inq"><small>${J?'Terjual':'Baki'}</small><div class="stepper"><button aria-label="Kurang" onclick="bakiStep('${i.pid}',-1,${i.qty})">−</button>
       <input type="number" inputmode="numeric" min="0" max="${i.qty}" value="${val}" placeholder="0" data-pid="${i.pid}" oninput="calc()" aria-label="${J?'Terjual':'Baki'} ${esc(i.name)}">
       <button aria-label="Tambah" onclick="bakiStep('${i.pid}',1,${i.qty})">+</button></div></div>`:`<div class="kv" style="flex:none;grid-template-columns:1fr"><div><small>Baki</small><b>${b}</b></div></div>`}
     </div></div>`}).join('');
   $('#app').innerHTML=`<div class="pt"><button class="back" aria-label="Kembali" onclick="openId=null;render()">${IC.back}</button><h2 style="font-size:20px">${esc(shopName(c.shopId))}</h2></div>
   <div class="meta"><span>${c.no}</span><span>Hantar ${fmtD(c.date)}</span>${c.settle&&!editing?`<span>Kutip ${fmtD(c.settle.date)}</span>`:''}<span class="pill ${c.status}" style="margin:0">${editing?'Belum kutip':'Dah bayar'}</span></div>
-  ${editing?`<div class="sec" style="margin-top:4px">Isi ikut</div>
+  ${editing?`<div class="card" style="padding:12px 16px"><div class="field"><label for="kdate">Tarikh kutip</label><input class="input" type="date" id="kdate" value="${c.settle?c.settle.date:today()}" max="${today()}"></div></div>
+    <div class="sec" style="margin-top:4px">Isi ikut</div>
     <div class="seg" style="margin-top:0"><button class="${J?'on':''}" onclick="setMode('jual')">Jumlah terjual</button><button class="${J?'':'on'}" onclick="setMode('baki')">Baki di kedai</button></div>`
   :`<div class="sec" style="margin-top:4px">Ringkasan jualan</div>`}
   <div class="card flush">${rows}</div>
@@ -499,18 +503,20 @@ function bakiStep(pid,d,max){const el=document.querySelector(`input[data-pid="${
 /* Baki untuk satu item, ikut cara isi semasa */
 function readBaki(i){const el=document.querySelector(`input[data-pid="${i.pid}"]`);const v=Math.max(0,+el.value||0);
   return (D.inMode||'jual')==='jual'?i.qty-Math.min(i.qty,v):Math.min(i.qty,v)}
+function readPrice(i){const el=$('#pr_'+i.pid);return el?Math.max(0,+el.value||0):+i.price}
 function calc(){
   const c=D.cons.find(x=>x.id===openId),J=(D.inMode||'jual')==='jual';let t=0;
-  c.items.forEach(i=>{const b=readBaki(i),j=i.qty-b;t+=j*i.price;
-    $('#o_'+i.pid).textContent=J?b:j;$('#s_'+i.pid).textContent=(j*i.price).toFixed(2)});
+  c.items.forEach(i=>{const b=readBaki(i),j=i.qty-b,pr=readPrice(i);t+=j*pr;
+    $('#o_'+i.pid).textContent=J?b:j;$('#s_'+i.pid).textContent=(j*pr).toFixed(2)});
   $('#tot').textContent=rm(t);
 }
 async function kutip(){
-  const c=D.cons.find(x=>x.id===openId);const baki={};let t=0;
+  const c=D.cons.find(x=>x.id===openId);const baki={},prices={};let t=0;
+  const kd=($('#kdate')||{}).value||today();if(kd>today())return toast('Tarikh kutip tak boleh lepas hari ini');if(kd<c.date)return toast('Tarikh kutip tak boleh sebelum tarikh hantar');
   for(const i of c.items){const v=+document.querySelector(`input[data-pid="${i.pid}"]`).value||0;
     if(v>i.qty)return toast((D.inMode||'jual')==='jual'?'Terjual '+i.name+' lebih dari stok dihantar':'Baki '+i.name+' lebih dari stok dihantar');
-    baki[i.pid]=readBaki(i);t+=(i.qty-baki[i.pid])*i.price}
-  c.settle={date:today(),baki,total:t};c.status='selesai';c.updatedAt=Date.now();queue('cons',c);await commit();printBayar(c);render();toast('Bayaran '+rm(t)+' direkod');
+    baki[i.pid]=readBaki(i);prices[i.pid]=readPrice(i);t+=(i.qty-baki[i.pid])*prices[i.pid]}
+  c.settle={date:kd,baki,prices,total:Math.round(t*100)/100};c.status='selesai';c.updatedAt=Date.now();queue('cons',c);await commit();printBayar(c);render();toast('Bayaran '+rm(t)+' direkod');
 }
 async function editSemula(id){const c=D.cons.find(x=>x.id===id);c.status='aktif';c.updatedAt=Date.now();queue('cons',c);await commit();render()}
 async function padam(id){if(!confirm('Padam resit ini?'))return;const c=D.cons.find(x=>x.id===id);D.cons=D.cons.filter(x=>x.id!==id);if(c)queue('cons',Object.assign({},c,{deleted:true,updatedAt:Date.now()}));openId=null;await commit();render()}
@@ -646,17 +652,21 @@ function bytesHantar(c){
   b.ln().ln(wrap('Bayaran dikutip ikut kuantiti terjual pada lawatan seterusnya.'));
   return escFoot(b);
 }
+/* Harga semasa kutip (boleh berbeza dari harga masa hantar) */
+function kp(c,i){const s=c.settle;return s&&s.prices&&s.prices[i.pid]!=null?+s.prices[i.pid]:+i.price}
+function curPrice(c,i){if(c.settle&&c.settle.prices&&c.settle.prices[i.pid]!=null)return +c.settle.prices[i.pid];
+  const p=D.products.find(x=>x.id===i.pid);return p?+p.price:+i.price}
 function kiraKutip(c){const s=c.settle;let u=0,v=0,j=0,k=0;
-  c.items.forEach(i=>{const b=+s.baki[i.pid]||0;u+=i.qty;v+=i.qty*i.price;k+=b;j+=i.qty-b});return {u,v,j,k}}
+  c.items.forEach(i=>{const b=+s.baki[i.pid]||0;u+=i.qty;v+=i.qty*kp(c,i);k+=b;j+=i.qty-b});return {u,v,j,k}}
 function bytesBayar(c){
   const s=c.settle,b=escBuilder();
   const T=kiraKutip(c);
   escHead(b,'RESIT KUTIPAN',c);b.ln('Tarikh hantar: '+fmtD(c.date)).ln('Tarikh kutip : '+fmtD(s.date)).hr();
   c.items.forEach(i=>{const k=+s.baki[i.pid]||0,j=i.qty-k;
     b.bold(1).ln(wrap(i.name)).bold(0)
-     .ln(lr('  Hantar '+i.qty+' x '+i.price.toFixed(2),(i.qty*i.price).toFixed(2)))
+     .ln(lr('  Hantar '+i.qty+' x '+kp(c,i).toFixed(2),(i.qty*kp(c,i)).toFixed(2)))
      .ln('  Terjual '+j+'   Baki '+k)
-     .bold(1).ln(lr('  Bayar '+j+' x '+i.price.toFixed(2),(j*i.price).toFixed(2))).bold(0)});
+     .bold(1).ln(lr('  Bayar '+j+' x '+kp(c,i).toFixed(2),(j*kp(c,i)).toFixed(2))).bold(0)});
   b.hr().ln(lr('Jumlah hantar',T.u+' balang')).ln(lr('Nilai stok dihantar',rm(T.v)))
    .ln(lr('Jumlah terjual',T.j+' balang')).ln(lr('Baki di kedai',T.k+' balang'));
   b.hr().bold(1).big(1).center(1).ln('PERLU BAYAR').ln(rm(s.total)).big(0).bold(0).center(0);
@@ -677,9 +687,9 @@ function htmlBayar(c){
   const T=kiraKutip(c);
   return head('RESIT KUTIPAN',c)+`<div>Tarikh hantar: ${fmtD(c.date)}</div><div>Tarikh kutip : ${fmtD(s.date)}</div><hr>`+
   c.items.map(i=>{const b=+s.baki[i.pid]||0,j=i.qty-b;return `<div class="b">${esc(i.name)}</div>
-  <div class="r"><span>&nbsp;Hantar ${i.qty} x ${i.price.toFixed(2)}</span><span>${(i.qty*i.price).toFixed(2)}</span></div>
+  <div class="r"><span>&nbsp;Hantar ${i.qty} x ${kp(c,i).toFixed(2)}</span><span>${(i.qty*kp(c,i)).toFixed(2)}</span></div>
   <div class="r"><span>&nbsp;Terjual ${j} &nbsp; Baki ${b}</span></div>
-  <div class="r b"><span>&nbsp;Bayar ${j} x ${i.price.toFixed(2)}</span><span>${(j*i.price).toFixed(2)}</span></div>`}).join('')+
+  <div class="r b"><span>&nbsp;Bayar ${j} x ${kp(c,i).toFixed(2)}</span><span>${(j*kp(c,i)).toFixed(2)}</span></div>`}).join('')+
   `<hr><div class="r"><span>Jumlah hantar</span><span>${T.u} balang</span></div><div class="r"><span>Nilai stok dihantar</span><span>${rm(T.v)}</span></div>
   <div class="r"><span>Jumlah terjual</span><span>${T.j} balang</span></div><div class="r"><span>Baki di kedai</span><span>${T.k} balang</span></div>
   <hr><div class="r tot"><span>PERLU BAYAR</span><span>${rm(s.total)}</span></div>`+foot();
@@ -691,7 +701,7 @@ function textResit(c,type){
   if(type==='bayar'){
     const T=kiraKutip(c);
     L.push('Tarikh hantar: '+fmtD(c.date),'Tarikh kutip: '+fmtD(c.settle.date),'');
-    c.items.forEach(i=>{const b=+c.settle.baki[i.pid]||0,j=i.qty-b;L.push('*'+i.name+'*','Hantar '+i.qty+' x '+i.price.toFixed(2)+' = '+rm(i.qty*i.price),'Terjual '+j+' | Baki '+b,'Bayar '+j+' x '+i.price.toFixed(2)+' = '+rm(j*i.price),'')});
+    c.items.forEach(i=>{const b=+c.settle.baki[i.pid]||0,j=i.qty-b;L.push('*'+i.name+'*','Hantar '+i.qty+' x '+kp(c,i).toFixed(2)+' = '+rm(i.qty*kp(c,i)),'Terjual '+j+' | Baki '+b,'Bayar '+j+' x '+kp(c,i).toFixed(2)+' = '+rm(j*kp(c,i)),'')});
     L.push('Jumlah hantar: '+T.u+' balang','Nilai stok dihantar: '+rm(T.v),'Jumlah terjual: '+T.j+' balang','Baki di kedai: '+T.k+' balang','','*PERLU BAYAR: '+rm(c.settle.total)+'*');
   }else{
     L.push('Tarikh: '+fmtD(c.date),'');
