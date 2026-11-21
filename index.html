@@ -276,7 +276,7 @@ const shopName=id=>(D.shops.find(s=>s.id===id)||{}).name||'(kedai dipadam)';
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
 
 /* ================== SIMPANAN & SYNC ==================
-   Data disimpan dulu dalam telefon (localStorage), kemudian dihantar ke Google Sheets (GAS).
+   Data disimpan dulu dalam telefon (localStorage), kemudian dihantar ke server.
    Kalau tiada internet, perubahan beratur dalam "outbox" dan dihantar bila ada line. */
 const GAS_URL='https://script.google.com/macros/s/AKfycbytYz5mNRnlQp0ktKG0Xy7maS87HJKEKUyH7NIUbohHduBfZNOCnl-BZTFGK7b8DuH9/exec';
 const cloudOn=()=>/^https:\/\/script\.google\.com\//.test(GAS_URL);
@@ -713,7 +713,7 @@ function vTetapan(){
   if(!isAdmin()){
     $('#app').innerHTML=`<div class="pt"><h2>Akaun</h2></div>
     <div class="card"><div class="li" style="box-shadow:none;padding:0;margin:0"><div class="av">ST</div><div class="mid"><b>Staff</b><small>Boleh hantar stok, kutip dan cetak resit</small></div></div></div>
-    <div class="card"><p class="muted" style="margin:0 0 12px">${(D.outbox||[]).length?(D.outbox.length+' perubahan belum dihantar ke cloud.'):'Semua data dah disimpan ke Google Sheets.'}</p>
+    <div class="card"><p class="muted" style="margin:0 0 12px">${(D.outbox||[]).length?(D.outbox.length+' perubahan menunggu internet untuk disimpan ke server.'):'Semua data dah disimpan dengan selamat di server.'}</p>
     <p class="muted" style="margin:0 0 12px">Harga, produk dan tetapan resit hanya boleh diubah oleh Admin.</p>
     <button class="btn ghost" onclick="logout()">Log keluar</button></div>`;
     return;
@@ -737,7 +737,7 @@ function vTetapan(){
   <div class="card">
     <div class="field"><label for="npin">PIN Admin baru (biar kosong jika tak tukar)</label><input class="input" id="npin" type="password" inputmode="numeric" maxlength="8" placeholder="6–8 digit"></div>
     <div class="field"><label for="spin">PIN Staff baru (biar kosong jika tak tukar)</label><input class="input" id="spin" type="password" inputmode="numeric" maxlength="8" placeholder="4–8 digit"></div>
-    <p class="muted" style="margin:4px 2px 12px">${(D.outbox||[]).length?(D.outbox.length+' perubahan belum dihantar ke cloud.'):'Semua data dah disimpan ke Google Sheets.'}${lastSync?' Sync terakhir '+new Date(lastSync).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})+'.':''}</p>
+    <p class="muted" style="margin:4px 2px 12px">${(D.outbox||[]).length?(D.outbox.length+' perubahan menunggu internet untuk disimpan ke server.'):'Semua data dah disimpan dengan selamat di server.'}${lastSync?' Sync terakhir '+new Date(lastSync).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})+'.':''}</p>
     <button class="btn ghost" onclick="logout()">Log keluar dari telefon ini</button>
   </div>`:''}
   `;
