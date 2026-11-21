@@ -264,7 +264,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');se
 /* ================== SIMPANAN & SYNC ==================
    Data disimpan dulu dalam telefon (localStorage), kemudian dihantar ke Google Sheets (GAS).
    Kalau tiada internet, perubahan beratur dalam "outbox" dan dihantar bila ada line. */
-const GAS_URL='PASTE_URL_GAS_DI_SINI';
+const GAS_URL='https://script.google.com/macros/s/AKfycbx9FyUZJwJe9EBEACR5RoNtau9Ozqq1kMyhur3hyzstVYOAa7bkGhKcMmtVbgwLOriz/exec';
 const cloudOn=()=>/^https:\/\/script\.google\.com\//.test(GAS_URL);
 const PINKEY='bahulu-kundur-pin';
 let syncing=false,syncAgain=false,lastSync=0,syncErr='';
