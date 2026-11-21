@@ -152,6 +152,27 @@ nav button.on{color:var(--brand)}
 nav button.on .ic{background:var(--goldSoft)}
 nav svg{width:22px;height:22px}
 
+.sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;background:rgba(20,12,6,.45);opacity:0;pointer-events:none;transition:opacity .2s}
+.sheet.open{opacity:1;pointer-events:auto}
+.sheet .box{width:100%;max-width:600px;background:var(--surface);border-radius:24px 24px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom));transform:translateY(30px);transition:transform .25s}
+.sheet.open .box{transform:none}
+.sheet .grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:-8px auto 16px}
+.sheet .pi{width:56px;height:56px;border-radius:18px;background:var(--goldSoft);color:var(--brand);display:grid;place-items:center;margin-bottom:12px}
+.sheet h3{margin:0 0 4px;font-size:19px}
+.sheet p{margin:0 0 18px;color:var(--muted);font-size:14px}
+.sheet .box{max-height:92vh;display:flex;flex-direction:column}
+.rhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.rhead h3{margin:0;font-size:18px}
+.sheet .scroll{overflow:auto;flex:1;background:var(--surface2);border-radius:16px;padding:16px;margin-bottom:14px}
+.paper{background:#fff;color:#111;width:100%;max-width:300px;margin:0 auto;padding:16px 14px;font:12.5px/1.45 "Courier New",ui-monospace,monospace;box-shadow:0 2px 10px rgba(0,0,0,.08);
+  -webkit-mask:radial-gradient(circle 5px at 50% 100%,#0000 98%,#000) 50% 100%/12px 100% repeat-x,linear-gradient(#000,#000) top/100% calc(100% - 5px) no-repeat}
+.paper .c{text-align:center}.paper .b{font-weight:700}
+.paper hr{border:none;border-top:1px dashed #555;margin:8px 0}
+.paper .r{display:flex;justify-content:space-between;gap:6px}
+.paper .tot{font-size:15px;font-weight:700}
+.ract{display:grid;grid-template-columns:1fr 1.2fr 1.4fr;gap:8px}
+.ract .btn{min-height:50px;font-size:14px;padding:0 8px}
+.btn.wa{background:#25D366;color:#fff}
 #toast{position:fixed;left:50%;bottom:calc(var(--navH) + env(safe-area-inset-bottom) + 100px);transform:translate(-50%,10px);z-index:30;
   background:#2B1A0E;color:#FFF8EE;padding:11px 18px;border-radius:14px;font-size:14px;font-weight:500;opacity:0;transition:.2s;pointer-events:none;max-width:88vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
@@ -186,6 +207,16 @@ nav svg{width:22px;height:22px}
   <button data-tab="resit"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>Resit</button>
   <button data-tab="tetapan"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>Tetapan</button>
 </div></nav>
+<div class="sheet" id="rmodal" onclick="if(event.target===this)tutupResit()"><div class="box" role="dialog" aria-modal="true" aria-labelledby="rTitle">
+  <div class="grab"></div>
+  <div class="rhead"><h3 id="rTitle">Resit</h3><button class="back" aria-label="Tutup" onclick="tutupResit()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="scroll"><div class="paper" id="rpaper"></div></div>
+  <div class="ract">
+    <button class="btn ghost" onclick="tutupResit()">Tutup</button>
+    <button class="btn wa" onclick="waResit()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5 0a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2s.2-1.1.1-1.2l-.5-.3z"/></svg> WhatsApp</button>
+    <button class="btn primary" id="rPrint" onclick="cetakResit()">Cetak</button>
+  </div>
+</div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="print"></div>
 
@@ -232,6 +263,7 @@ const IC={
   chev:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>',
   trash:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>',
   plus:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  receiptSm:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>',
   receipt:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>'
 };
 const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
@@ -321,9 +353,9 @@ function vDetail(){
   <div class="meta"><span>${c.no}</span><span>Hantar ${fmtD(c.date)}</span>${c.settle?`<span>Kutip ${fmtD(c.settle.date)}</span>`:''}<span class="pill ${c.status}" style="margin:0">${editing?'Belum kutip':'Dah bayar'}</span></div>
   ${editing?`<div class="sec" style="margin-top:4px">Masukkan baki balang di kedai</div>`:`<div class="sec" style="margin-top:4px">Ringkasan jualan</div>`}
   <div class="card flush">${rows}</div>
-  ${editing?`<div class="grid2"><button class="btn ghost" onclick="printHantar(D.cons.find(x=>x.id==='${c.id}'))">${IC.print} Resit hantaran</button>
+  ${editing?`<div class="grid2"><button class="btn ghost" onclick="printHantar(D.cons.find(x=>x.id==='${c.id}'))">${IC.receiptSm} Lihat resit</button>
     <button class="btn ghost danger" onclick="padam('${c.id}')">${IC.trash} Padam</button></div>`
-  :`<div class="grid2"><button class="btn ghost" onclick="printBayar(D.cons.find(x=>x.id==='${c.id}'))">${IC.print} Cetak semula</button>
+  :`<div class="grid2"><button class="btn ghost" onclick="printBayar(D.cons.find(x=>x.id==='${c.id}'))">${IC.receiptSm} Lihat resit</button>
     <button class="btn ghost" onclick="editSemula('${c.id}')">Edit baki</button></div>`}`;
   const total=c.settle?c.settle.total:c.items.reduce((a,i)=>a+i.qty*i.price,0);
   setDock(editing?`<div class="tot"><small>Kedai perlu bayar</small><b id="tot">${rm(total)}</b></div><button class="btn primary" onclick="kutip()">${IC.print} Kutip &amp; cetak</button>`
@@ -382,7 +414,6 @@ function head(title,c){const s=D.shops.find(x=>x.id===c.shopId)||{};
   return `<div class="c b" style="font-size:14px">${esc((D.supplier.name||'').toUpperCase())}</div>${D.supplier.sub?`<div class="c">${esc(D.supplier.sub)}</div>`:''}${D.supplier.phone?`<div class="c">${esc(D.supplier.phone)}</div>`:''}<hr>
   <div class="c b">${title}</div><div>No: ${c.no}</div><div>Kedai: ${esc(s.name||'')}</div>${s.phone?`<div>Tel: ${esc(s.phone)}</div>`:''}`}
 function foot(){return `<hr><div class="c">${esc(D.supplier.note)}</div><br><div>Tandatangan kedai:</div><br><div>________________</div><br>`}
-function doPrint(html){$('#print').innerHTML=html;setTimeout(()=>window.print(),100)}
 
 /* ---------- PRINTER BLUETOOTH (sama macam POSKedai: Web Bluetooth + ESC/POS) ---------- */
 let btDevice=null,btChar=null,btBusy=false;
@@ -390,7 +421,7 @@ const BT_SERVICES=['000018f0-0000-1000-8000-00805f9b34fb','0000ff00-0000-1000-80
 const BT_CHARS=['00002af1-0000-1000-8000-00805f9b34fb','0000ff01-0000-1000-8000-00805f9b34fb','bef8d6c9-9c21-4c9e-b632-bd58c1009f9f'];
 function setBt(state,text){const b=$('#pbar');b.className='chip '+state;
   $('#ptext').textContent=state==='connected'?'Sedia':state==='connecting'?'…':'Printer';
-  b.setAttribute('aria-label',text);if(state!=='connecting'&&text!=='Printer belum disambung'&&state!=='connected')toast(text)}
+  b.setAttribute('aria-label',text);if(typeof updPrintBtn==='function')updPrintBtn();if(state!=='connecting'&&text!=='Printer belum disambung'&&state!=='connected')toast(text)}
 async function btToggle(){
   if(btDevice&&btDevice.gatt.connected){btDevice.gatt.disconnect();return}
   if(btDevice){return btAttach(btDevice)}
@@ -476,30 +507,77 @@ function bytesBayar(c){
   b.hr().bold(1).big(1).center(1).ln('PERLU BAYAR').ln(rm(s.total)).big(0).bold(0).center(0);
   return escFoot(b);
 }
-/* Cetak: guna printer Bluetooth kalau tersambung, kalau tak guna cetak browser */
-async function cetak(bytesFn,htmlFn,c){
-  if(btChar&&btDevice&&btDevice.gatt.connected){if(await btSend(bytesFn(c)))toast('Resit dicetak');return}
-  htmlFn(c);
-}
-function printHantar(c){return cetak(bytesHantar,printHantarHtml,c)}
-function printBayar(c){return cetak(bytesBayar,printBayarHtml,c)}
-
-function printHantarHtml(c){
+/* ---------- POPUP RESIT (macam POSKedai: lihat resit dulu, kemudian Cetak / WhatsApp) ---------- */
+let cur=null; // {c,type}
+const btReady=()=>btChar&&btDevice&&btDevice.gatt.connected;
+function htmlHantar(c){
   const u=c.items.reduce((a,i)=>a+i.qty,0),v=c.items.reduce((a,i)=>a+i.qty*i.price,0);
-  doPrint(head('RESIT HANTARAN STOK',c)+`<div>Tarikh: ${fmtD(c.date)}</div><hr>`+
-  c.items.map(i=>`<div>${esc(i.name)}</div><div class="r"><span>${i.qty} x ${i.price.toFixed(2)}</span><span>${(i.qty*i.price).toFixed(2)}</span></div>`).join('')+
+  return head('RESIT HANTARAN STOK',c)+`<div>Tarikh: ${fmtD(c.date)}</div><hr>`+
+  c.items.map(i=>`<div class="b">${esc(i.name)}</div><div class="r"><span>${i.qty} x ${i.price.toFixed(2)}</span><span>${(i.qty*i.price).toFixed(2)}</span></div>`).join('')+
   `<hr><div class="r"><span>Jumlah balang</span><span>${u}</span></div><div class="r b"><span>Nilai stok</span><span>${rm(v)}</span></div>
-  <div style="margin-top:4px">Bayaran dikutip ikut kuantiti terjual pada lawatan seterusnya.</div>`+foot());
+  <div style="margin-top:6px">Bayaran dikutip ikut kuantiti terjual pada lawatan seterusnya.</div>`+foot();
 }
-function printBayarHtml(c){
+function htmlBayar(c){
   const s=c.settle;
-  doPrint(head('RESIT BAYARAN JUALAN',c)+`<div>Hantar: ${fmtD(c.date)}</div><div>Kutip: ${fmtD(s.date)}</div><hr>`+
-  c.items.map(i=>{const b=s.baki[i.pid]||0,j=i.qty-b;return `<div>${esc(i.name)}</div>
-  <div class="r"><span>Hantar ${i.qty} Baki ${b}</span></div><div class="r"><span>Jual ${j} x ${i.price.toFixed(2)}</span><span>${(j*i.price).toFixed(2)}</span></div>`}).join('')+
-  `<hr><div class="r tot"><span>PERLU BAYAR</span><span>${rm(s.total)}</span></div>`+foot());
+  return head('RESIT BAYARAN JUALAN',c)+`<div>Hantar: ${fmtD(c.date)}</div><div>Kutip : ${fmtD(s.date)}</div><hr>`+
+  c.items.map(i=>{const b=s.baki[i.pid]||0,j=i.qty-b;return `<div class="b">${esc(i.name)}</div>
+  <div class="r"><span>Hantar ${i.qty} &nbsp;Baki ${b}</span></div><div class="r"><span>Jual ${j} x ${i.price.toFixed(2)}</span><span>${(j*i.price).toFixed(2)}</span></div>`}).join('')+
+  `<hr><div class="r tot"><span>PERLU BAYAR</span><span>${rm(s.total)}</span></div>`+foot();
+}
+function textResit(c,type){
+  const s=D.shops.find(x=>x.id===c.shopId)||{},L=[];
+  L.push('*'+(D.supplier.name||'').toUpperCase()+'*');if(D.supplier.sub)L.push(D.supplier.sub);if(D.supplier.phone)L.push(D.supplier.phone);
+  L.push('','*'+(type==='bayar'?'RESIT BAYARAN JUALAN':'RESIT HANTARAN STOK')+'*','No: '+c.no,'Kedai: '+(s.name||''));
+  if(type==='bayar'){
+    L.push('Hantar: '+fmtD(c.date),'Kutip: '+fmtD(c.settle.date),'');
+    c.items.forEach(i=>{const b=c.settle.baki[i.pid]||0,j=i.qty-b;L.push('*'+i.name+'*','Hantar '+i.qty+' | Baki '+b+' | Jual '+j,'Jual '+j+' x '+i.price.toFixed(2)+' = '+rm(j*i.price),'')});
+    L.push('*PERLU BAYAR: '+rm(c.settle.total)+'*');
+  }else{
+    L.push('Tarikh: '+fmtD(c.date),'');
+    c.items.forEach(i=>L.push('*'+i.name+'*',i.qty+' x '+i.price.toFixed(2)+' = '+rm(i.qty*i.price),''));
+    L.push('Jumlah balang: '+c.items.reduce((a,i)=>a+i.qty,0),'*Nilai stok: '+rm(c.items.reduce((a,i)=>a+i.qty*i.price,0))+'*','','Bayaran dikutip ikut kuantiti terjual pada lawatan seterusnya.');
+  }
+  if(D.supplier.note)L.push('',D.supplier.note);
+  return L.join('\n');
+}
+function showResit(c,type){
+  cur={c,type};
+  $('#rpaper').innerHTML=type==='bayar'?htmlBayar(c):htmlHantar(c);
+  $('#rTitle').textContent=type==='bayar'?'Resit bayaran '+c.no:'Resit hantaran '+c.no;
+  updPrintBtn();$('#rmodal').classList.add('open');$('#rmodal .scroll').scrollTop=0;
+}
+function tutupResit(){$('#rmodal').classList.remove('open')}
+function updPrintBtn(){const b=$('#rPrint');if(b)b.innerHTML=IC.print+(btReady()?' Cetak':' Sambung &amp; cetak')}
+async function cetakResit(){
+  if(!cur)return;const btn=$('#rPrint');
+  if(!btReady()){
+    if(btDevice&&!btDevice.gatt.connected)await btAttach(btDevice);else if(!btDevice)await btConnect();
+    updPrintBtn();if(!btReady())return;
+  }
+  btn.disabled=true;btn.textContent='Mencetak...';
+  const ok=await btSend(cur.type==='bayar'?bytesBayar(cur.c):bytesHantar(cur.c));
+  btn.disabled=false;updPrintBtn();if(ok)toast('Resit dicetak');
+}
+function waResit(){
+  if(!cur)return;const s=D.shops.find(x=>x.id===cur.c.shopId)||{};
+  let ph=String(s.phone||'').replace(/\D/g,'');if(ph.startsWith('0'))ph='6'+ph;
+  window.open('https://wa.me/'+(ph||'')+'?text='+encodeURIComponent(textResit(cur.c,cur.type)),'_blank');
+}
+function printHantar(c){showResit(c,'hantar')}
+function printBayar(c){showResit(c,'bayar')}
+
+/* Cuba sambung semula printer yang pernah dipilih (Chrome yang menyokong getDevices) */
+async function btAutoReconnect(){
+  try{
+    if(!navigator.bluetooth||!navigator.bluetooth.getDevices)return;
+    const list=await navigator.bluetooth.getDevices();if(!list.length)return;
+    btDevice=list[0];
+    btDevice.addEventListener('gattserverdisconnected',()=>{btChar=null;setBt('','Printer terputus. Tekan Printer untuk sambung semula')});
+    await btAttach(btDevice);
+  }catch(e){}
 }
 
-load();
+load();btAutoReconnect();
 </script>
 </body>
 </html>
