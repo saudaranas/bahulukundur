@@ -22,9 +22,9 @@
   --brand:#E9A85A;--brand2:#F2BC74;--gold:#E9A85A;--goldSoft:#3A2A17;--ok:#5BC489;--okSoft:#183324;--warn:#F28B5B;--warnSoft:#3A1F14;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);color-scheme:dark}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  -webkit-font-smoothing:antialiased;overscroll-behavior-y:none;
+  -webkit-font-smoothing:antialiased;min-height:100vh;
   padding:calc(var(--barH) + env(safe-area-inset-top)) 0 calc(var(--navH) + env(safe-area-inset-bottom) + 16px)}
 body.hasDock{padding-bottom:calc(var(--navH) + env(safe-area-inset-bottom) + 96px)}
 button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0;touch-action:manipulation}
@@ -539,8 +539,8 @@ function vTetapan(){
     <p class="muted" style="margin:4px 2px 12px">${(D.outbox||[]).length?(D.outbox.length+' perubahan belum dihantar ke cloud.'):'Semua data dah disimpan ke Google Sheets.'}${lastSync?' Sync terakhir '+new Date(lastSync).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})+'.':''}</p>
     <button class="btn ghost" onclick="logout()">Log keluar dari telefon ini</button>
   </div>`:''}
-  <div style="height:8px"></div>
-  <button class="btn primary" onclick="simpanTetapan()">Simpan tetapan</button>`;
+  `;
+  setDock(`<div class="tot"><small>Tetapan</small><b style="font-size:16px">Simpan perubahan</b></div><button class="btn primary" onclick="simpanTetapan()">Simpan tetapan</button>`);
 }
 function grabP(){document.querySelectorAll('#prods .row').forEach((r,k)=>{D.products[k].name=r.querySelector('.pn').value;D.products[k].price=+r.querySelector('.pp').value||0})}
 function tambahP(){grabP();D.products.push({id:uid(),name:'Produk baru',price:0});vTetapan()}
