@@ -40,11 +40,22 @@ input,select{font:inherit;color:var(--ink)}
 .logo{width:38px;height:38px;border-radius:11px;background:var(--brand);display:grid;place-items:center;flex:none;box-shadow:0 3px 8px rgba(122,63,20,.25)}
 .brand{flex:1;min-width:0}
 .brand h1{margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:430px){.chip #ptext{display:none}.appbar .chip{padding:0 9px}}
+@media (max-width:340px){.chip #ctext{display:none}}
 .brand p{margin:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px 0 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--muted)}
 .chip .dot{width:8px;height:8px;border-radius:50%;background:#B8AA9B}
 .chip.connected{background:var(--okSoft);border-color:transparent;color:var(--ok)}.chip.connected .dot{background:var(--ok)}
 .chip.connecting .dot{background:var(--gold);animation:pulse 1s infinite}
+.chip.err{background:var(--warnSoft);border-color:transparent;color:var(--warn)}.chip.err .dot{background:var(--warn)}
+.chip.off .dot{background:#B8AA9B}
+.appbar .chip{padding:0 10px 0 8px;gap:5px}
+.login{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px}
+.login.open{display:flex}
+.lbox{width:100%;max-width:340px;text-align:center}
+.lbox h2{margin:0;font-size:24px;font-weight:800}
+.input.pin{text-align:center;font-size:26px;letter-spacing:.5em;height:60px;font-weight:700}
+.lmsg{color:var(--warn);font-size:13.5px;min-height:20px;margin:10px 0}
 @keyframes pulse{50%{opacity:.3}}
 
 /* Layout */
@@ -197,6 +208,9 @@ nav svg{width:22px;height:22px}
 <header class="appbar"><div class="in">
   <div class="logo"><svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10c4 0 5 4 8 4s7-1 9 1 0 6 1 9 5 4 5 8-4 5-4 8 2 6 0 9-6 0-9 1-4 5-8 5-5-4-8-4-7 1-9-1 0-6-1-9-5-4-5-8 4-5 4-8-2-6 0-9 6 0 9-1 4-5 8-5z" fill="#E8A93E"/><circle cx="32" cy="32" r="7" fill="#7A3F14" opacity=".45"/></svg></div>
   <div class="brand"><h1 id="hdrName">Bahulu Kundur</h1><p id="hdrSub">Keluaran KOMASKO</p></div>
+  <button class="chip" id="cloud" onclick="cloudTap()" style="display:none" aria-label="Status sync">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.8A6 6 0 0 0 4.5 13 3 3 0 0 0 6 19z"/></svg>
+    <span class="dot"></span><span id="ctext">Cloud</span></button>
   <button class="chip" id="pbar" onclick="btToggle()" aria-label="Sambung printer">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>
     <span class="dot"></span><span id="ptext">Printer</span></button>
@@ -218,6 +232,13 @@ nav svg{width:22px;height:22px}
     <button class="btn primary" id="rPrint" onclick="cetakResit()">Cetak</button>
   </div>
 </div></div>
+<div class="login" id="login"><div class="lbox">
+  <div class="logo" style="width:64px;height:64px;border-radius:18px;margin:0 auto 14px"><svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10c4 0 5 4 8 4s7-1 9 1 0 6 1 9 5 4 5 8-4 5-4 8 2 6 0 9-6 0-9 1-4 5-8 5-5-4-8-4-7 1-9-1 0-6-1-9-5-4-5-8 4-5 4-8-2-6 0-9 6 0 9-1 4-5 8-5z" fill="#E8A93E"/><circle cx="32" cy="32" r="7" fill="#7A3F14" opacity=".45"/></svg></div>
+  <h2>Bahulu Kundur</h2><p class="muted" style="margin:2px 0 22px">Masukkan PIN untuk buka app</p>
+  <input class="input pin" id="lpin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="• • • •" maxlength="8" onkeyup="if(event.key==='Enter')login()" aria-label="PIN">
+  <p id="lmsg" class="lmsg" role="alert"></p>
+  <button class="btn primary" id="lbtn" onclick="login()">Masuk</button>
+</div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="print"></div>
 
@@ -231,29 +252,128 @@ let tab='hantar',filter='aktif',openId=null,draft={shopId:'',qty:{}};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rm=n=>'RM'+Number(n||0).toFixed(2);
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const fmtD=d=>d?d.split('-').reverse().join('/'):'';
-const uid=()=>Math.random().toString(36).slice(2,9);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+/* No. resit unik walaupun beberapa telefon guna serentak: K + tarikh + 3 aksara */
+function newNo(){const d=today().split('-'),ch='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let r='';for(let i=0;i<3;i++)r+=ch[Math.floor(Math.random()*ch.length)];
+  let no='K'+d[2]+d[1]+d[0].slice(2)+'-'+r;return D.cons.some(c=>c.no===no)?newNo():no}
 const shopName=id=>(D.shops.find(s=>s.id===id)||{}).name||'(kedai dipadam)';
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
 
-/* Simpanan: guna window.storage dalam artifact Claude, localStorage di tempat lain (GitHub Pages, fail di telefon) */
-const hasArtifactStore=()=>window.storage&&typeof window.storage.get==='function';
+/* ================== SIMPANAN & SYNC ==================
+   Data disimpan dulu dalam telefon (localStorage), kemudian dihantar ke Google Sheets (GAS).
+   Kalau tiada internet, perubahan beratur dalam "outbox" dan dihantar bila ada line. */
+const GAS_URL='PASTE_URL_GAS_DI_SINI';
+const cloudOn=()=>/^https:\/\/script\.google\.com\//.test(GAS_URL);
+const PINKEY='bahulu-kundur-pin';
+let syncing=false,syncAgain=false,lastSync=0,syncErr='';
+function getPin(){try{return localStorage.getItem(PINKEY)||''}catch(e){return ''}}
+function setPin(v){try{v?localStorage.setItem(PINKEY,v):localStorage.removeItem(PINKEY)}catch(e){}}
 async function load(){
-  try{
-    let v=null;
-    if(hasArtifactStore()){const r=await window.storage.get(KEY,false);v=r&&r.value}
-    else v=localStorage.getItem(KEY);
-    if(v)D=Object.assign(D,JSON.parse(v));
-  }catch(e){}
+  try{const v=localStorage.getItem(KEY);if(v)D=Object.assign(D,JSON.parse(v))}catch(e){}
+  if(!D.outbox)D.outbox=[];
   render();
+  if(cloudOn()){if(!getPin())showLogin();else sync()}
+  setCloud();
 }
 async function save(){
-  try{
-    if(hasArtifactStore()){const r=await window.storage.set(KEY,JSON.stringify(D),false);if(!r)toast('Data tak tersimpan')}
-    else localStorage.setItem(KEY,JSON.stringify(D));
-  }catch(e){toast('Data tak tersimpan')}
+  try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('Data tak tersimpan dalam telefon')}
 }
+/* Rekod perubahan untuk dihantar ke cloud */
+function queue(t,data){
+  if(!cloudOn())return;
+  D.outbox=D.outbox||[];
+  // gabung op yang sama (contoh: kemaskini resit sama 2 kali) supaya outbox kecil
+  const key=t==='cons'||t==='shop'?t+':'+data.id:t;
+  D.outbox=D.outbox.filter(o=>o.k!==key);
+  D.outbox.push({k:key,t,data:JSON.parse(JSON.stringify(data))});
+}
+async function commit(){await save();setCloud();sync()}
+async function api(body){
+  const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+  return r.json();
+}
+function busyEditing(){const a=document.activeElement;
+  if(a&&(a.tagName==='INPUT'||a.tagName==='SELECT'))return true;
+  if(tab==='tetapan')return true;
+  if(tab==='resit'&&openId){const c=D.cons.find(x=>x.id===openId);if(c&&c.status==='aktif')return true}
+  return $('#rmodal').classList.contains('open');
+}
+function applyLocal(op){
+  if(op.t==='cons'){const i=D.cons.findIndex(x=>x.id===op.data.id);if(op.data.deleted){if(i>=0)D.cons.splice(i,1)}else if(i>=0)D.cons[i]=op.data;else D.cons.unshift(op.data)}
+  else if(op.t==='shop'){const i=D.shops.findIndex(x=>x.id===op.data.id);if(i>=0)D.shops[i]=op.data;else D.shops.push(op.data)}
+  else if(op.t==='products')D.products=op.data;
+  else if(op.t==='supplier')D.supplier=op.data;
+}
+async function sync(){
+  if(!cloudOn()||!getPin())return;
+  if(syncing){syncAgain=true;return}
+  if(!navigator.onLine){syncErr='offline';setCloud();return}
+  syncing=true;syncErr='';setCloud();
+  try{
+    const ops=(D.outbox||[]).slice();
+    const res=await api({action:'sync',pin:getPin(),ops:ops.map(o=>({t:o.t,data:o.data}))});
+    if(!res.ok){
+      if(res.code==='PIN'){setPin('');syncErr='pin';showLogin('PIN telah ditukar. Sila masuk semula.')}
+      else syncErr=res.error||'Ralat server';
+    }else{
+      D.outbox=(D.outbox||[]).filter(o=>!ops.includes(o)); // buang yang dah dihantar
+      const keepMode=D.inMode,keepOut=D.outbox;
+      D.supplier=res.data.supplier;D.products=res.data.products.length?res.data.products:D.products;
+      D.shops=res.data.shops;D.cons=res.data.cons;D.inMode=keepMode;D.outbox=keepOut;
+      keepOut.forEach(applyLocal); // perubahan baru semasa sync berjalan
+      lastSync=Date.now();await save();
+      if(!busyEditing())render();else $('#hdrName').textContent=D.supplier.name||'Bahulu Kundur';
+    }
+  }catch(e){syncErr='offline'}
+  syncing=false;setCloud();
+  if(syncAgain){syncAgain=false;sync()}
+}
+function setCloud(){
+  const b=$('#cloud');if(!b)return;
+  if(!cloudOn()){b.style.display='none';return}
+  b.style.display='';
+  const n=(D.outbox||[]).length;
+  let st,label;
+  if(syncing){st='connecting';label='Sync…'}
+  else if(syncErr==='offline'){st='off';label=n?'Offline · '+n:'Offline'}
+  else if(syncErr){st='err';label='Ralat'}
+  else if(n){st='connecting';label=n+' belum sync'}
+  else{st='connected';label='Cloud'}
+  b.className='chip '+st;$('#ctext').textContent=label;
+  b.setAttribute('aria-label',syncErr&&syncErr!=='offline'?'Ralat sync: '+syncErr:'Status sync: '+label);
+}
+function cloudTap(){if(syncErr&&syncErr!=='offline'&&syncErr!=='pin')toast('Ralat sync: '+syncErr);sync()}
+window.addEventListener('online',()=>sync());
+window.addEventListener('offline',()=>{syncErr='offline';setCloud()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sync()});
+setInterval(()=>{if(document.visibilityState==='visible')sync()},60000);
+
+/* ---------- LOGIN PIN ---------- */
+function showLogin(msg){
+  $('#login').classList.add('open');$('#lmsg').textContent=msg||'';
+  setTimeout(()=>{const i=$('#lpin');if(i){i.value='';i.focus()}},50);
+}
+async function login(){
+  const pin=$('#lpin').value.trim(),btn=$('#lbtn');
+  if(pin.length<4)return($('#lmsg').textContent='PIN sekurang-kurangnya 4 digit');
+  btn.disabled=true;btn.textContent='Menyemak…';$('#lmsg').textContent='';
+  try{
+    const res=await api({action:'all',pin});
+    if(!res.ok){$('#lmsg').textContent=res.code==='PIN'?'PIN salah. Cuba lagi.':(res.error||'Ralat server');}
+    else{
+      setPin(pin);
+      // bawa data lama dalam telefon ni ke cloud (sekali sahaja)
+      const ids=new Set(res.data.cons.map(c=>c.id)),sids=new Set(res.data.shops.map(x=>x.id));
+      D.shops.filter(x=>!sids.has(x.id)).forEach(x=>queue('shop',Object.assign({updatedAt:1},x)));
+      D.cons.filter(c=>!ids.has(c.id)).forEach(c=>queue('cons',Object.assign({updatedAt:1},c)));
+      $('#login').classList.remove('open');toast('Berjaya masuk');await save();sync();
+    }
+  }catch(e){$('#lmsg').textContent='Tiada internet. Sambung internet untuk log masuk kali pertama.'}
+  btn.disabled=false;btn.textContent='Masuk';
+}
+function logout(){if(!confirm('Log keluar dari telefon ini?'))return;setPin('');showLogin()}
 
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;openId=null;render();window.scrollTo(0,0)});
 
@@ -307,12 +427,12 @@ function step(id,d){draft.qty[id]=Math.max(0,(+draft.qty[id]||0)+d);const el=$('
 function upd(){let t=0,u=0;D.products.forEach(p=>{const q=+draft.qty[p.id]||0;t+=q*p.price;u+=q});const a=$('#u'),b=$('#t');if(a)a.textContent=u+' balang · nilai stok';if(b)b.textContent=rm(t)}
 async function hantar(){
   let sid=draft.shopId;
-  if(sid==='__new'){const n=$('#ns').value.trim();if(!n)return toast('Isi nama kedai');sid=uid();D.shops.push({id:sid,name:n,phone:$('#np').value.trim()})}
+  if(sid==='__new'){const n=$('#ns').value.trim();if(!n)return toast('Isi nama kedai');sid=uid();const sh={id:sid,name:n,phone:$('#np').value.trim(),updatedAt:Date.now()};D.shops.push(sh);queue('shop',sh)}
   if(!sid)return toast('Pilih kedai dulu');
   const items=D.products.filter(p=>+draft.qty[p.id]>0).map(p=>({pid:p.id,name:p.name,price:+p.price,qty:+draft.qty[p.id]}));
   if(!items.length)return toast('Masukkan kuantiti');
-  D.seq++;const c={id:uid(),no:'K'+String(D.seq).padStart(4,'0'),shopId:sid,date:today(),items,status:'aktif',settle:null};
-  D.cons.unshift(c);await save();draft={shopId:'',qty:{}};
+  D.seq++;const c={id:uid(),no:newNo(),shopId:sid,date:today(),items,status:'aktif',settle:null,updatedAt:Date.now()};
+  D.cons.unshift(c);queue('cons',c);await commit();draft={shopId:'',qty:{}};
   printHantar(c);tab='resit';openId=c.id;render();toast('Resit '+c.no+' disimpan');
 }
 
@@ -390,10 +510,10 @@ async function kutip(){
   for(const i of c.items){const v=+document.querySelector(`input[data-pid="${i.pid}"]`).value||0;
     if(v>i.qty)return toast((D.inMode||'jual')==='jual'?'Terjual '+i.name+' lebih dari stok dihantar':'Baki '+i.name+' lebih dari stok dihantar');
     baki[i.pid]=readBaki(i);t+=(i.qty-baki[i.pid])*i.price}
-  c.settle={date:today(),baki,total:t};c.status='selesai';await save();printBayar(c);render();toast('Bayaran '+rm(t)+' direkod');
+  c.settle={date:today(),baki,total:t};c.status='selesai';c.updatedAt=Date.now();queue('cons',c);await commit();printBayar(c);render();toast('Bayaran '+rm(t)+' direkod');
 }
-async function editSemula(id){const c=D.cons.find(x=>x.id===id);c.status='aktif';await save();render()}
-async function padam(id){if(!confirm('Padam resit ini?'))return;D.cons=D.cons.filter(x=>x.id!==id);openId=null;await save();render()}
+async function editSemula(id){const c=D.cons.find(x=>x.id===id);c.status='aktif';c.updatedAt=Date.now();queue('cons',c);await commit();render()}
+async function padam(id){if(!confirm('Padam resit ini?'))return;const c=D.cons.find(x=>x.id===id);D.cons=D.cons.filter(x=>x.id!==id);if(c)queue('cons',Object.assign({},c,{deleted:true,updatedAt:Date.now()}));openId=null;await commit();render()}
 function hantarLagi(id){const c=D.cons.find(x=>x.id===id);draft={shopId:c.shopId,qty:{}};tab='hantar';openId=null;render();window.scrollTo(0,0)}
 
 /* ---------- TETAPAN ---------- */
@@ -413,6 +533,12 @@ function vTetapan(){
   <p class="hint">Harga baru hanya untuk hantaran baru. Resit lama kekal dengan harga asal.</p>
   <div class="sec">Kedai</div>
   <div class="card flush">${D.shops.length?D.shops.map(s=>`<div class="srow"><input class="input sh" value="${esc(s.name)}" style="flex:2" aria-label="Nama kedai"><input class="input sph" value="${esc(s.phone||'')}" placeholder="Telefon" inputmode="tel" style="flex:1" aria-label="Telefon kedai"></div>`).join(''):'<p class="muted" style="padding:12px 0">Kedai ditambah semasa hantar stok.</p>'}</div>
+  ${cloudOn()?`<div class="sec">Keselamatan &amp; data</div>
+  <div class="card">
+    <div class="field"><label for="npin">Tukar PIN (biar kosong jika tak tukar)</label><input class="input" id="npin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN baru 4–8 digit"></div>
+    <p class="muted" style="margin:4px 2px 12px">${(D.outbox||[]).length?(D.outbox.length+' perubahan belum dihantar ke cloud.'):'Semua data dah disimpan ke Google Sheets.'}${lastSync?' Sync terakhir '+new Date(lastSync).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})+'.':''}</p>
+    <button class="btn ghost" onclick="logout()">Log keluar dari telefon ini</button>
+  </div>`:''}
   <div style="height:8px"></div>
   <button class="btn primary" onclick="simpanTetapan()">Simpan tetapan</button>`;
 }
@@ -423,7 +549,11 @@ async function simpanTetapan(){
   D.supplier={name:$('#sn').value.trim(),sub:$('#ss').value.trim(),phone:$('#sp').value.trim(),note:$('#sx').value.trim()};grabP();
   document.querySelectorAll('.sh').forEach((el,k)=>{D.shops[k].name=el.value.trim()||D.shops[k].name});
   document.querySelectorAll('.sph').forEach((el,k)=>{D.shops[k].phone=el.value.trim()});
-  await save();render();toast('Tetapan disimpan');
+  const now=Date.now();D.shops.forEach(x=>{x.updatedAt=now;queue('shop',x)});
+  queue('supplier',D.supplier);queue('products',D.products);
+  const np=($('#npin')||{}).value;
+  if(np){if(!/^\d{4,8}$/.test(np))return toast('PIN baru mesti 4 hingga 8 digit');queue('pin',np);setPin(np)}
+  await commit();render();toast('Tetapan disimpan');
 }
 
 /* ---------- CETAK (kertas thermal 58mm) ---------- */
