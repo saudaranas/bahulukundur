@@ -146,6 +146,17 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .kv small{display:block;font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .kv b{font-size:15px}
 .kv .sold b{color:var(--ok)}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 12px;padding:2px 16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;height:36px;padding:0 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--muted)}
+.chips button.on{background:var(--brand);border-color:var(--brand);color:#FFF8EE}
+.bl{padding:12px 0;border-bottom:1px solid var(--line)}.bl:last-child{border-bottom:none}
+.bl .t{display:flex;justify-content:space-between;gap:8px;font-size:14.5px}
+.bl .bar{height:8px;border-radius:4px;background:var(--surface2);margin:8px 0 5px;overflow:hidden}
+.bl .bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--brand))}
+.bl small{color:var(--muted);font-size:12px}
+.lrow{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:12px 0;border-bottom:1px solid var(--line)}
+.lrow:last-child{border-bottom:none}.lrow small{display:block;color:var(--muted);font-size:12px}
 .prc{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--muted);margin:0;font-weight:600;white-space:nowrap}
 .prc input{width:74px;height:34px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface2);text-align:right;padding:0 8px;font-weight:700;color:var(--ink)}
 .inq{flex:none;text-align:center}.inq small{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--brand);margin-bottom:3px}
@@ -222,6 +233,7 @@ nav svg{width:22px;height:22px}
 <nav><div class="in">
   <button data-tab="hantar"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v10H3z"/><path d="M14 10h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></span>Hantar</button>
   <button data-tab="resit"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>Resit</button>
+  <button data-tab="laporan"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Laporan</button>
   <button data-tab="tetapan"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>Tetapan</button>
 </div></nav>
 <div class="sheet" id="rmodal" onclick="if(event.target===this)tutupResit()"><div class="box" role="dialog" aria-modal="true" aria-labelledby="rTitle">
@@ -398,6 +410,7 @@ function render(){
   setDock('');
   if(tab==='hantar')vHantar();
   else if(tab==='resit')openId?vDetail():vList();
+  else if(tab==='laporan')vLaporan();
   else vTetapan();
   $('#app').classList.remove('fade');void $('#app').offsetWidth;$('#app').classList.add('fade');
 }
@@ -521,6 +534,144 @@ async function kutip(){
 async function editSemula(id){const c=D.cons.find(x=>x.id===id);c.status='aktif';c.updatedAt=Date.now();queue('cons',c);await commit();render()}
 async function padam(id){if(!confirm('Padam resit ini?'))return;const c=D.cons.find(x=>x.id===id);D.cons=D.cons.filter(x=>x.id!==id);if(c)queue('cons',Object.assign({},c,{deleted:true,updatedAt:Date.now()}));openId=null;await commit();render()}
 function hantarLagi(id){const c=D.cons.find(x=>x.id===id);draft={shopId:c.shopId,qty:{}};tab='hantar';openId=null;render();window.scrollTo(0,0)}
+
+/* ---------- LAPORAN ---------- */
+let rp={preset:'bulan',from:'',to:''};
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const BLN=['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
+function rpRange(){
+  const n=new Date(),y=n.getFullYear(),m=n.getMonth();
+  if(rp.preset==='bulan')return[ymd(new Date(y,m,1)),today()];
+  if(rp.preset==='lepas')return[ymd(new Date(y,m-1,1)),ymd(new Date(y,m,0))];
+  if(rp.preset==='3bulan')return[ymd(new Date(y,m-2,1)),today()];
+  if(rp.preset==='tahun')return[ymd(new Date(y,0,1)),today()];
+  return[rp.from||ymd(new Date(y,m,1)),rp.to||today()];
+}
+function rpLabel(a,b){return fmtD(a)+' – '+fmtD(b)}
+function kiraLaporan(){
+  const [a,b]=rpRange();
+  const list=D.cons.filter(c=>c.status==='selesai'&&c.settle&&c.settle.date>=a&&c.settle.date<=b)
+    .sort((x,y)=>x.settle.date<y.settle.date?-1:1);
+  let rmT=0,bal=0,hant=0;const kedai={},prod={};
+  list.forEach(c=>{
+    const nm=shopName(c.shopId);kedai[nm]=kedai[nm]||{rm:0,bal:0,n:0};kedai[nm].n++;
+    c.items.forEach(i=>{const k=+c.settle.baki[i.pid]||0,j=i.qty-k,v=j*kp(c,i);
+      rmT+=v;bal+=j;hant+=i.qty;kedai[nm].rm+=v;kedai[nm].bal+=j;
+      prod[i.name]=prod[i.name]||{rm:0,bal:0,hantar:0};prod[i.name].rm+=v;prod[i.name].bal+=j;prod[i.name].hantar+=i.qty});
+  });
+  // bucket graf: harian jika <= 31 hari, jika tidak bulanan
+  const d0=new Date(a+'T00:00:00'),d1=new Date(b+'T00:00:00'),days=Math.round((d1-d0)/864e5)+1;
+  const bucket=[];
+  if(days<=31){for(let d=new Date(d0);d<=d1;d.setDate(d.getDate()+1))bucket.push({k:ymd(d),l:String(d.getDate()),v:0})}
+  else{for(let d=new Date(d0.getFullYear(),d0.getMonth(),1);d<=d1;d.setMonth(d.getMonth()+1))bucket.push({k:ymd(d).slice(0,7),l:BLN[d.getMonth()],v:0})}
+  list.forEach(c=>{const key=days<=31?c.settle.date:c.settle.date.slice(0,7);const x=bucket.find(z=>z.k===key);if(x)x.v+=c.settle.total});
+  const aktif=D.cons.filter(c=>c.status==='aktif');
+  const stok=aktif.reduce((s,c)=>s+c.items.reduce((t,i)=>t+i.qty*i.price,0),0);
+  return{a,b,list,rmT,bal,hant,kedai,prod,bucket,daily:days<=31,stok,aktifN:aktif.length};
+}
+function svgChart(bk){
+  const W=600,H=220,pl=44,pb=26,pt=12,max=Math.max(1,...bk.map(x=>x.v));
+  const step=Math.pow(10,Math.floor(Math.log10(max)));const top=Math.ceil(max/step)*step||1;
+  const bw=(W-pl-8)/bk.length,every=Math.ceil(bk.length/12);
+  let g='';
+  for(let k=0;k<=3;k++){const v=top*k/3,y=H-pb-(H-pb-pt)*k/3;
+    g+=`<line x1="${pl}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v>=1000?(v/1000).toFixed(v%1000?1:0)+'k':Math.round(v)}</text>`}
+  bk.forEach((x,i)=>{const h=(H-pb-pt)*x.v/top,X=pl+i*bw+bw*.15,w=Math.max(2,bw*.7);
+    g+=`<rect x="${X}" y="${H-pb-h}" width="${w}" height="${Math.max(0,h)}" rx="${Math.min(4,w/3)}" fill="${x.v?'var(--brand)':'var(--line)'}"><title>${x.l}: ${rm(x.v)}</title></rect>`;
+    if(i%every===0)g+=`<text x="${X+w/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${x.l}</text>`});
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Graf jualan">${g}</svg>`;
+}
+function barList(obj,total,unit){
+  const arr=Object.entries(obj).sort((x,y)=>y[1].rm-x[1].rm);
+  if(!arr.length)return '<p class="muted" style="padding:12px 0">Tiada data.</p>';
+  return arr.map(([n,o])=>{const pc=total?o.rm/total*100:0;
+    return `<div class="bl"><div class="t"><b>${esc(n)}</b><span>${rm(o.rm)}</span></div><div class="bar"><i style="width:${pc.toFixed(1)}%"></i></div><small>${o.bal} balang terjual${unit&&o.n?' · '+o.n+' kutipan':''} · ${pc.toFixed(0)}%</small></div>`}).join('');
+}
+function vLaporan(){
+  const R=kiraLaporan(),P=[['bulan','Bulan ini'],['lepas','Bulan lepas'],['3bulan','3 bulan'],['tahun','Tahun ini'],['custom','Pilih tarikh']];
+  $('#app').innerHTML=`<div class="pt"><h2>Laporan</h2></div>
+  <div class="chips">${P.map(([k,l])=>`<button class="${rp.preset===k?'on':''}" onclick="rp.preset='${k}';vLaporan()">${l}</button>`).join('')}</div>
+  ${rp.preset==='custom'?`<div class="card" style="padding:12px 16px"><div class="grid2" style="margin:0"><div class="field"><label for="rf">Dari</label><input class="input" type="date" id="rf" value="${R.a}" onchange="rp.from=this.value;vLaporan()"></div>
+    <div class="field"><label for="rt">Hingga</label><input class="input" type="date" id="rt" value="${R.b}" onchange="rp.to=this.value;vLaporan()"></div></div></div>`:''}
+  <p class="hint" style="margin:0 4px 12px">${rpLabel(R.a,R.b)} · ikut tarikh kutip</p>
+  <div class="stats" style="grid-template-columns:1fr 1fr">
+    <div class="stat hl"><small>Jumlah jualan</small><b style="font-size:22px">${rm(R.rmT)}</b></div>
+    <div class="stat"><small>Balang terjual</small><b style="font-size:22px">${R.bal}</b></div>
+    <div class="stat"><small>Kutipan</small><b>${R.list.length} resit</b></div>
+    <div class="stat"><small>Kadar jualan</small><b>${R.hant?Math.round(R.bal/R.hant*100):0}% <span class="muted" style="font-weight:600">dari hantaran</span></b></div>
+  </div>
+  <div class="sec">Jualan ${R.daily?'harian':'bulanan'}</div>
+  <div class="card">${R.list.length?svgChart(R.bucket):'<div class="empty" style="padding:24px 8px"><b>Belum ada kutipan dalam tempoh ini</b><p class="muted">Jualan dikira bila resit dikutip.</p></div>'}</div>
+  <div class="sec">Ikut kedai</div><div class="card flush">${barList(R.kedai,R.rmT,true)}</div>
+  <div class="sec">Ikut produk</div><div class="card flush">${barList(R.prod,R.rmT,false)}</div>
+  <div class="sec">Senarai kutipan</div>
+  <div class="card flush">${R.list.length?R.list.slice().reverse().map(c=>`<button class="lrow" onclick="tab='resit';openId='${c.id}';render();window.scrollTo(0,0)"><span><b>${esc(shopName(c.shopId))}</b><small>${fmtD(c.settle.date)} · ${c.no}</small></span><b>${rm(c.settle.total)}</b></button>`).join(''):'<p class="muted" style="padding:12px 0">Tiada kutipan.</p>'}</div>
+  <p class="hint">Stok masih di kedai sekarang: ${rm(R.stok)} (${R.aktifN} resit belum kutip).</p>`;
+  setDock(`<div class="tot"><small>Jualan ${rp.preset==='bulan'?'bulan ini':'tempoh ini'}</small><b>${rm(R.rmT)}</b></div><button class="btn primary" id="pdfBtn" onclick="laporanPDF()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg> PDF</button>`);
+}
+
+/* PDF laporan (jsPDF dimuat bila perlu) */
+function loadJsPDF(){return new Promise((ok,no)=>{if(window.jspdf)return ok();const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=()=>ok();s.onerror=()=>no(new Error('Perlu internet untuk buat PDF'));document.head.appendChild(s)})}
+async function laporanPDF(){
+  const btn=$('#pdfBtn');btn.disabled=true;btn.textContent='Menyediakan…';
+  try{await loadJsPDF()}catch(e){toast(e.message);btn.disabled=false;vLaporan();return}
+  const R=kiraLaporan(),{jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});
+  const BR=[122,63,20],GOLD=[224,162,58],MU=[133,112,94],LN=[236,227,214];
+  const pdfTxt=t=>toAscii(String(t));let y=0,page=1;
+  const foot=()=>{doc.setFontSize(8);doc.setTextColor(...MU);doc.text(pdfTxt('Dijana '+fmtD(today())+' · App Konsainan '+(D.supplier.name||'')),15,290);doc.text('Muka '+page,195,290,{align:'right'})};
+  const need=h=>{if(y+h>278){foot();doc.addPage();page++;y=18}};
+  // Header
+  doc.setFillColor(...BR);doc.rect(0,0,210,34,'F');
+  doc.setTextColor(255,248,238);doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text(pdfTxt((D.supplier.name||'').toUpperCase()),15,15);
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(pdfTxt(D.supplier.sub||''),15,21);
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('LAPORAN JUALAN',195,15,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(pdfTxt(rpLabel(R.a,R.b)),195,21,{align:'right'});
+  doc.setFontSize(8.5);doc.text('Ikut tarikh kutip',195,27,{align:'right'});
+  y=44;
+  // KPI
+  const K=[['Jumlah jualan',rm(R.rmT)],['Balang terjual',String(R.bal)],['Kutipan',R.list.length+' resit'],['Kadar jualan',(R.hant?Math.round(R.bal/R.hant*100):0)+'%']];
+  K.forEach((k,i)=>{const x=15+i*45.5;doc.setFillColor(...(i?[251,247,241]:BR));doc.roundedRect(x,y,42,22,3,3,'F');
+    doc.setTextColor(...(i?MU:[255,230,200]));doc.setFontSize(8.5);doc.text(k[0],x+4,y+7);
+    doc.setTextColor(...(i?[43,26,14]:[255,255,255]));doc.setFont('helvetica','bold');doc.setFontSize(13);doc.text(k[1],x+4,y+16);doc.setFont('helvetica','normal')});
+  y+=32;
+  // Graf
+  doc.setTextColor(43,26,14);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('Jualan '+(R.daily?'harian':'bulanan')+' (RM)',15,y);doc.setFont('helvetica','normal');y+=5;
+  const gx=27,gw=168,gh=55,max=Math.max(1,...R.bucket.map(b=>b.v));const stp=Math.pow(10,Math.floor(Math.log10(max)));const top=Math.ceil(max/stp)*stp||1;
+  doc.setFontSize(7.5);doc.setTextColor(...MU);doc.setDrawColor(...LN);
+  for(let k=0;k<=3;k++){const yy=y+gh-gh*k/3;doc.line(gx,yy,gx+gw,yy);doc.text(String(Math.round(top*k/3)),gx-2,yy+1,{align:'right'})}
+  const bw=gw/R.bucket.length,ev=Math.ceil(R.bucket.length/16);
+  R.bucket.forEach((b,i)=>{const h=gh*b.v/top,x=gx+i*bw+bw*.15;if(h>0){doc.setFillColor(...BR);doc.rect(x,y+gh-h,bw*.7,h,'F')}
+    if(i%ev===0)doc.text(b.l,x+bw*.35,y+gh+4,{align:'center'})});
+  y+=gh+12;
+  // Jadual ringkas
+  const table=(title,head,rows,widths,align)=>{
+    need(20);doc.setTextColor(43,26,14);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(title,15,y);y+=4;
+    const row=(cells,bold,fill)=>{need(8);if(fill){doc.setFillColor(...fill);doc.rect(15,y,180,7,'F')}
+      doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(9);doc.setTextColor(...(fill===BR?[255,255,255]:[43,26,14]));
+      let x=15;cells.forEach((c,i)=>{const w=widths[i];const t=pdfTxt(c);
+        if(align[i]==='r')doc.text(t,x+w-2,y+5,{align:'right'});else doc.text(doc.splitTextToSize(t,w-3)[0],x+2,y+5);x+=w});
+      y+=7;doc.setDrawColor(...LN);doc.line(15,y,195,y)};
+    row(head,true,BR);
+    if(!rows.length)row(['Tiada data'].concat(head.slice(1).map(()=>'')),false);
+    rows.forEach((r,i)=>row(r,r.bold,i%2?[251,247,241]:null));y+=8;
+  };
+  const kd=Object.entries(R.kedai).sort((a,b)=>b[1].rm-a[1].rm);
+  table('Jualan ikut kedai',['Kedai','Kutipan','Balang','RM','%'],
+    kd.map(([n,o])=>[n,String(o.n),String(o.bal),o.rm.toFixed(2),(R.rmT?o.rm/R.rmT*100:0).toFixed(0)+'%']).concat(kd.length?[Object.assign(['JUMLAH',String(R.list.length),String(R.bal),R.rmT.toFixed(2),'100%'],{bold:true})]:[]),
+    [80,25,25,32,18],['l','r','r','r','r']);
+  const pr=Object.entries(R.prod).sort((a,b)=>b[1].rm-a[1].rm);
+  table('Jualan ikut produk',['Produk','Hantar','Terjual','RM','%'],
+    pr.map(([n,o])=>[n,String(o.hantar),String(o.bal),o.rm.toFixed(2),(R.rmT?o.rm/R.rmT*100:0).toFixed(0)+'%']),
+    [80,25,25,32,18],['l','r','r','r','r']);
+  table('Senarai kutipan',['Tarikh','No. resit','Kedai','Balang','RM'],
+    R.list.map(c=>[fmtD(c.settle.date),c.no,shopName(c.shopId),String(c.items.reduce((s,i)=>s+i.qty-(+c.settle.baki[i.pid]||0),0)),c.settle.total.toFixed(2)]),
+    [26,32,74,20,28],['l','l','l','r','r']);
+  need(10);doc.setFontSize(9);doc.setTextColor(...MU);doc.text(pdfTxt('Stok masih di kedai: '+rm(R.stok)+' ('+R.aktifN+' resit belum kutip)'),15,y);
+  foot();
+  doc.save('Laporan-'+(D.supplier.name||'Jualan').replace(/\s+/g,'-')+'-'+R.a+'-hingga-'+R.b+'.pdf');
+  btn.disabled=false;vLaporan();toast('PDF dimuat turun');
+}
 
 /* ---------- TETAPAN ---------- */
 function vTetapan(){
