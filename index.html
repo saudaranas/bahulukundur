@@ -516,11 +516,19 @@ function bytesHantar(c){
   b.ln().ln(wrap('Bayaran dikutip ikut kuantiti terjual pada lawatan seterusnya.'));
   return escFoot(b);
 }
+function kiraKutip(c){const s=c.settle;let u=0,v=0,j=0,k=0;
+  c.items.forEach(i=>{const b=+s.baki[i.pid]||0;u+=i.qty;v+=i.qty*i.price;k+=b;j+=i.qty-b});return {u,v,j,k}}
 function bytesBayar(c){
   const s=c.settle,b=escBuilder();
-  escHead(b,'RESIT BAYARAN JUALAN',c);b.ln('Hantar: '+fmtD(c.date)).ln('Kutip : '+fmtD(s.date)).hr();
-  c.items.forEach(i=>{const k=s.baki[i.pid]||0,j=i.qty-k;
-    b.bold(1).ln(wrap(i.name)).bold(0).ln('  Hantar '+i.qty+'  Baki '+k).ln(lr('  Jual '+j+' x '+i.price.toFixed(2),(j*i.price).toFixed(2)))});
+  const T=kiraKutip(c);
+  escHead(b,'RESIT KUTIPAN',c);b.ln('Tarikh hantar: '+fmtD(c.date)).ln('Tarikh kutip : '+fmtD(s.date)).hr();
+  c.items.forEach(i=>{const k=+s.baki[i.pid]||0,j=i.qty-k;
+    b.bold(1).ln(wrap(i.name)).bold(0)
+     .ln(lr('  Hantar '+i.qty+' x '+i.price.toFixed(2),(i.qty*i.price).toFixed(2)))
+     .ln('  Terjual '+j+'   Baki '+k)
+     .bold(1).ln(lr('  Bayar '+j+' x '+i.price.toFixed(2),(j*i.price).toFixed(2))).bold(0)});
+  b.hr().ln(lr('Jumlah hantar',T.u+' balang')).ln(lr('Nilai stok dihantar',rm(T.v)))
+   .ln(lr('Jumlah terjual',T.j+' balang')).ln(lr('Baki di kedai',T.k+' balang'));
   b.hr().bold(1).big(1).center(1).ln('PERLU BAYAR').ln(rm(s.total)).big(0).bold(0).center(0);
   return escFoot(b);
 }
@@ -536,19 +544,25 @@ function htmlHantar(c){
 }
 function htmlBayar(c){
   const s=c.settle;
-  return head('RESIT BAYARAN JUALAN',c)+`<div>Hantar: ${fmtD(c.date)}</div><div>Kutip : ${fmtD(s.date)}</div><hr>`+
-  c.items.map(i=>{const b=s.baki[i.pid]||0,j=i.qty-b;return `<div class="b">${esc(i.name)}</div>
-  <div class="r"><span>Hantar ${i.qty} &nbsp;Baki ${b}</span></div><div class="r"><span>Jual ${j} x ${i.price.toFixed(2)}</span><span>${(j*i.price).toFixed(2)}</span></div>`}).join('')+
-  `<hr><div class="r tot"><span>PERLU BAYAR</span><span>${rm(s.total)}</span></div>`+foot();
+  const T=kiraKutip(c);
+  return head('RESIT KUTIPAN',c)+`<div>Tarikh hantar: ${fmtD(c.date)}</div><div>Tarikh kutip : ${fmtD(s.date)}</div><hr>`+
+  c.items.map(i=>{const b=+s.baki[i.pid]||0,j=i.qty-b;return `<div class="b">${esc(i.name)}</div>
+  <div class="r"><span>&nbsp;Hantar ${i.qty} x ${i.price.toFixed(2)}</span><span>${(i.qty*i.price).toFixed(2)}</span></div>
+  <div class="r"><span>&nbsp;Terjual ${j} &nbsp; Baki ${b}</span></div>
+  <div class="r b"><span>&nbsp;Bayar ${j} x ${i.price.toFixed(2)}</span><span>${(j*i.price).toFixed(2)}</span></div>`}).join('')+
+  `<hr><div class="r"><span>Jumlah hantar</span><span>${T.u} balang</span></div><div class="r"><span>Nilai stok dihantar</span><span>${rm(T.v)}</span></div>
+  <div class="r"><span>Jumlah terjual</span><span>${T.j} balang</span></div><div class="r"><span>Baki di kedai</span><span>${T.k} balang</span></div>
+  <hr><div class="r tot"><span>PERLU BAYAR</span><span>${rm(s.total)}</span></div>`+foot();
 }
 function textResit(c,type){
   const s=D.shops.find(x=>x.id===c.shopId)||{},L=[];
   L.push('*'+(D.supplier.name||'').toUpperCase()+'*');if(D.supplier.sub)L.push(D.supplier.sub);if(D.supplier.phone)L.push(D.supplier.phone);
-  L.push('','*'+(type==='bayar'?'RESIT BAYARAN JUALAN':'RESIT HANTARAN STOK')+'*','No: '+c.no,'Kedai: '+(s.name||''));
+  L.push('','*'+(type==='bayar'?'RESIT KUTIPAN':'RESIT HANTARAN STOK')+'*','No: '+c.no,'Kedai: '+(s.name||''));
   if(type==='bayar'){
-    L.push('Hantar: '+fmtD(c.date),'Kutip: '+fmtD(c.settle.date),'');
-    c.items.forEach(i=>{const b=c.settle.baki[i.pid]||0,j=i.qty-b;L.push('*'+i.name+'*','Hantar '+i.qty+' | Baki '+b+' | Jual '+j,'Jual '+j+' x '+i.price.toFixed(2)+' = '+rm(j*i.price),'')});
-    L.push('*PERLU BAYAR: '+rm(c.settle.total)+'*');
+    const T=kiraKutip(c);
+    L.push('Tarikh hantar: '+fmtD(c.date),'Tarikh kutip: '+fmtD(c.settle.date),'');
+    c.items.forEach(i=>{const b=+c.settle.baki[i.pid]||0,j=i.qty-b;L.push('*'+i.name+'*','Hantar '+i.qty+' x '+i.price.toFixed(2)+' = '+rm(i.qty*i.price),'Terjual '+j+' | Baki '+b,'Bayar '+j+' x '+i.price.toFixed(2)+' = '+rm(j*i.price),'')});
+    L.push('Jumlah hantar: '+T.u+' balang','Nilai stok dihantar: '+rm(T.v),'Jumlah terjual: '+T.j+' balang','Baki di kedai: '+T.k+' balang','','*PERLU BAYAR: '+rm(c.settle.total)+'*');
   }else{
     L.push('Tarikh: '+fmtD(c.date),'');
     c.items.forEach(i=>L.push('*'+i.name+'*',i.qty+' x '+i.price.toFixed(2)+' = '+rm(i.qty*i.price),''));
@@ -560,7 +574,7 @@ function textResit(c,type){
 function showResit(c,type){
   cur={c,type};
   $('#rpaper').innerHTML=type==='bayar'?htmlBayar(c):htmlHantar(c);
-  $('#rTitle').textContent=type==='bayar'?'Resit bayaran '+c.no:'Resit hantaran '+c.no;
+  $('#rTitle').textContent=type==='bayar'?'Resit kutipan '+c.no:'Resit hantaran '+c.no;
   updPrintBtn();$('#rmodal').classList.add('open');$('#rmodal .scroll').scrollTop=0;
 }
 function tutupResit(){$('#rmodal').classList.remove('open')}
