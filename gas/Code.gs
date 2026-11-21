@@ -200,6 +200,27 @@ function applyOps_(ops, role) {
         return;
       }
 
+      if (op.t === 'reset') {
+        if (!admin) { reject('padam semua data'); return; }
+        clearRows_('Resit'); clearRows_('Kedai');
+        log_(role, 'Padam semua data', '', 'Semua resit dan kedai dikosongkan dari app');
+        notes.push('⚠️ <b>SEMUA DATA DIPADAM</b>\nSemua resit dan senarai kedai dikosongkan.\nOleh: ' + who + '\nMasa: ' + time_(Date.now()));
+        applied++;
+        return;
+      }
+
+      if (op.t === 'shop' && d.deleted) {
+        if (!admin) { reject('padam kedai', d.name); return; }
+        const exd = find_('Kedai', d.id);
+        if (exd) {
+          const sh = ss_().getSheetByName('Kedai');
+          try { sh.deleteRow(exd.row); } catch (e) { sh.getRange(exd.row, 1, 1, SHEETS.Kedai.length).clearContent(); }
+          log_(role, 'Kedai dipadam', '', String(exd.obj.name));
+        }
+        applied++;
+        return;
+      }
+
       if (op.t === 'shop') {
         const ex = find_('Kedai', d.id);
         if (ex && !admin) { reject('ubah kedai', d.name); return; }
@@ -322,6 +343,12 @@ function setSetting_(key, val) {
   const i = keys.indexOf(key);
   if (i >= 0) sh.getRange(i + 2, 2).setValue(String(val));
   else sh.getRange(last + 1, 1, 1, 2).setNumberFormat('@').setValues([[key, String(val)]]);
+}
+
+function clearRows_(name) {
+  const sh = ss_().getSheetByName(name);
+  const last = sh.getLastRow();
+  if (last > 1) sh.getRange(2, 1, last - 1, SHEETS[name].length).clearContent();
 }
 
 function writeProducts_(list) {

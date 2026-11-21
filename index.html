@@ -322,7 +322,8 @@ function busyEditing(){const a=document.activeElement;
 }
 function applyLocal(op){
   if(op.t==='cons'){const i=D.cons.findIndex(x=>x.id===op.data.id);if(op.data.deleted){if(i>=0)D.cons.splice(i,1)}else if(i>=0)D.cons[i]=op.data;else D.cons.unshift(op.data)}
-  else if(op.t==='shop'){const i=D.shops.findIndex(x=>x.id===op.data.id);if(i>=0)D.shops[i]=op.data;else D.shops.push(op.data)}
+  else if(op.t==='shop'){const i=D.shops.findIndex(x=>x.id===op.data.id);if(op.data.deleted){if(i>=0)D.shops.splice(i,1)}else if(i>=0)D.shops[i]=op.data;else D.shops.push(op.data)}
+  else if(op.t==='reset'){D.cons=[];D.shops=[]}
   else if(op.t==='products')D.products=op.data;
   else if(op.t==='supplier')D.supplier=op.data;
 }
@@ -732,7 +733,7 @@ function vTetapan(){
   <button class="add" onclick="tambahP()">${IC.plus} Tambah produk</button></div>
   <p class="hint">Harga baru hanya untuk hantaran baru. Resit lama kekal dengan harga asal.</p>
   <div class="sec">Kedai</div>
-  <div class="card flush">${D.shops.length?D.shops.map(s=>`<div class="srow"><input class="input sh" value="${esc(s.name)}" style="flex:2" aria-label="Nama kedai"><input class="input sph" value="${esc(s.phone||'')}" placeholder="Telefon" inputmode="tel" style="flex:1" aria-label="Telefon kedai"></div>`).join(''):'<p class="muted" style="padding:12px 0">Kedai ditambah semasa hantar stok.</p>'}</div>
+  <div class="card flush">${D.shops.length?D.shops.map((s,k)=>`<div class="srow"><input class="input sh" value="${esc(s.name)}" style="flex:2" aria-label="Nama kedai"><input class="input sph" value="${esc(s.phone||'')}" placeholder="Telefon" inputmode="tel" style="flex:1" aria-label="Telefon kedai"><button class="icon-btn" aria-label="Padam kedai ${esc(s.name)}" onclick="padamKedai(${k})">${IC.trash}</button></div>`).join(''):'<p class="muted" style="padding:12px 0">Kedai ditambah semasa hantar stok.</p>'}</div>
   ${cloudOn()?`<div class="sec">Keselamatan &amp; data</div>
   <div class="card">
     <div class="field"><label for="npin">PIN Admin baru (biar kosong jika tak tukar)</label><input class="input" id="npin" type="password" inputmode="numeric" maxlength="8" placeholder="6–8 digit"></div>
@@ -740,8 +741,25 @@ function vTetapan(){
     <p class="muted" style="margin:4px 2px 12px">${(D.outbox||[]).length?(D.outbox.length+' perubahan menunggu internet untuk disimpan ke server.'):'Semua data dah disimpan dengan selamat di server.'}${lastSync?' Sync terakhir '+new Date(lastSync).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})+'.':''}</p>
     <button class="btn ghost" onclick="logout()">Log keluar dari telefon ini</button>
   </div>`:''}
+  <div class="sec" style="color:var(--warn)">Zon bahaya</div>
+  <div class="card">
+    <p class="muted" style="margin:0 0 12px">Padam semua resit dan senarai kedai, contohnya untuk buang data cubaan sebelum mula guna. Produk, harga, PIN dan tetapan resit tidak dipadam. Tindakan ini tidak boleh dibatalkan.</p>
+    <button class="btn ghost danger" onclick="padamSemua()">${IC.trash} Padam semua data</button>
+  </div>
   `;
   setDock(`<div class="tot"><small>Tetapan</small><b style="font-size:16px">Simpan perubahan</b></div><button class="btn primary" onclick="simpanTetapan()">Simpan tetapan</button>`);
+}
+async function padamKedai(k){
+  const sh=D.shops[k];if(!sh)return;
+  const n=D.cons.filter(c=>c.shopId===sh.id&&c.status==='aktif').length;
+  if(!confirm('Padam kedai "'+sh.name+'"?'+(n?'\n\nKedai ini masih ada '+n+' resit belum kutip.':'')))return;
+  D.shops.splice(k,1);queue('shop',Object.assign({},sh,{deleted:true,updatedAt:Date.now()}));await commit();vTetapan();toast('Kedai dipadam');
+}
+async function padamSemua(){
+  const t=prompt('Semua resit dan kedai akan dipadam dari semua device.\nTaip PADAM untuk teruskan:');
+  if(t===null)return;if(String(t).trim().toUpperCase()!=='PADAM')return toast('Dibatalkan. Perlu taip PADAM');
+  D.outbox=(D.outbox||[]).filter(o=>o.t!=='cons'&&o.t!=='shop'); // buang perubahan test yang belum sync
+  D.cons=[];D.shops=[];draft={shopId:'',qty:{}};queue('reset',{at:Date.now()});await commit();render();toast('Semua data dipadam');
 }
 function grabP(){document.querySelectorAll('#prods .row').forEach((r,k)=>{D.products[k].name=r.querySelector('.pn').value;D.products[k].price=+r.querySelector('.pp').value||0})}
 function tambahP(){grabP();D.products.push({id:uid(),name:'Produk baru',price:0});vTetapan()}
