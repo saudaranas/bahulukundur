@@ -1,5 +1,5 @@
 /**
- * BAHULU KUNDUR · KOMASKO — Backend App Konsainan (v2: Staff + Admin)
+ * BAHULU KUNDUR · KOMASKU — Backend App Konsainan (v2: Staff + Admin)
  * Google Apps Script + Google Sheets
  *
  * CARA PASANG / KEMAS KINI:
@@ -45,7 +45,7 @@ function setup() {
   });
   const s = readSettings_();
   if (!s.name) setSetting_('name', 'Bahulu Kundur');
-  if (s.sub === undefined) setSetting_('sub', 'Keluaran KOMASKO');
+  if (s.sub === undefined) setSetting_('sub', 'Keluaran KOMASKU');
   if (s.phone === undefined) setSetting_('phone', '');
   if (!s.note) setSetting_('note', 'Terima kasih. Bayaran ikut jualan sebenar.');
   if (!s.pin_admin) setSetting_('pin_admin', s.pin || '123456');

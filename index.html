@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Bahulu Kundur">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237A3F14'/%3E%3Cpath d='M32 10c4 0 5 4 8 4s7-1 9 1 0 6 1 9 5 4 5 8-4 5-4 8 2 6 0 9-6 0-9 1-4 5-8 5-5-4-8-4-7 1-9-1 0-6-1-9-5-4-5-8 4-5 4-8-2-6 0-9 6 0 9-1 4-5 8-5z' fill='%23E8A93E'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%237A3F14' opacity='.4'/%3E%3C/svg%3E">
-<title>Bahulu Kundur · KOMASKO</title>
+<title>Bahulu Kundur · KOMASKU</title>
 <style>
 :root{
   --bg:#F7F2EA;--surface:#FFFFFF;--surface2:#FBF7F1;--ink:#2B1A0E;--muted:#85705E;--line:#ECE3D6;
@@ -220,7 +220,7 @@ nav svg{width:22px;height:22px}
 <body>
 <header class="appbar"><div class="in">
   <div class="logo"><svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10c4 0 5 4 8 4s7-1 9 1 0 6 1 9 5 4 5 8-4 5-4 8 2 6 0 9-6 0-9 1-4 5-8 5-5-4-8-4-7 1-9-1 0-6-1-9-5-4-5-8 4-5 4-8-2-6 0-9 6 0 9-1 4-5 8-5z" fill="#E8A93E"/><circle cx="32" cy="32" r="7" fill="#7A3F14" opacity=".45"/></svg></div>
-  <div class="brand"><h1 id="hdrName">Bahulu Kundur</h1><p id="hdrSub">Keluaran KOMASKO</p></div>
+  <div class="brand"><h1 id="hdrName">Bahulu Kundur</h1><p id="hdrSub">Keluaran KOMASKU</p></div>
   <button class="chip" id="cloud" onclick="cloudTap()" style="display:none" aria-label="Status sync">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.8A6 6 0 0 0 4.5 13 3 3 0 0 0 6 19z"/></svg>
     <span class="dot"></span><span id="ctext">Cloud</span></button>
@@ -258,7 +258,7 @@ nav svg{width:22px;height:22px}
 
 <script>
 const KEY='bahulu-kundur-v1';
-let D={supplier:{name:'Bahulu Kundur',sub:'Keluaran KOMASKO',phone:'',note:'Terima kasih. Bayaran ikut jualan sebenar.'},
+let D={supplier:{name:'Bahulu Kundur',sub:'Keluaran KOMASKU',phone:'',note:'Terima kasih. Bayaran ikut jualan sebenar.'},
   products:[{id:'p1',name:'Bahulu Ori (balang)',price:12},{id:'p2',name:'Bahulu Perisa (balang)',price:15}],
   shops:[],cons:[],seq:0};
 let tab='hantar',filter='aktif',openId=null,draft={shopId:'',qty:{}};
@@ -723,7 +723,7 @@ function vTetapan(){
   <div class="sec" style="margin-top:4px">Maklumat pada resit</div>
   <div class="card">
     <div class="field"><label for="sn">Nama perniagaan</label><input class="input" id="sn" value="${esc(D.supplier.name)}"></div>
-    <div class="field"><label for="ss">Baris kedua</label><input class="input" id="ss" value="${esc(D.supplier.sub||'')}" placeholder="Contoh: Keluaran KOMASKO"></div>
+    <div class="field"><label for="ss">Baris kedua</label><input class="input" id="ss" value="${esc(D.supplier.sub||'')}" placeholder="Contoh: Keluaran KOMASKU"></div>
     <div class="field"><label for="sp">No. telefon</label><input class="input" id="sp" inputmode="tel" value="${esc(D.supplier.phone)}"></div>
     <div class="field"><label for="sx">Nota hujung resit</label><input class="input" id="sx" value="${esc(D.supplier.note)}"></div>
   </div>
